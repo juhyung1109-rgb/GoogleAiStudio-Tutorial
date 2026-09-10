@@ -5,7 +5,6 @@ import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 
-# CSV 저장 경로 (ai_youtube_searcher 루트 기준)
 BASE_DIR = Path(__file__).resolve().parent.parent
 CSV_FILE_PATH = BASE_DIR / "transcripts.csv"
 
@@ -19,11 +18,13 @@ CSV_HEADERS = [
     "model",
     "full_text",
     "segments_json",
+    "summary_json",
+    "chapters_json",
     "created_at"
 ]
 
 def init_csv_file():
-    """CSV 파일이 없으면 헤더와 함께 utf-8-sig 인코딩으로 생성"""
+    """CSV 파일이 없거나 구버전 헤더인 경우 안전하게 준비"""
     if not CSV_FILE_PATH.exists():
         with open(CSV_FILE_PATH, "w", newline="", encoding="utf-8-sig") as f:
             writer = csv.writer(f)
@@ -32,7 +33,6 @@ def init_csv_file():
 def find_transcript_in_csv(url_or_id: str) -> Optional[Dict[str, Any]]:
     """
     CSV 파일에서 url 또는 video_id가 일치하는 레코드를 검색하여 반환
-    없으면 None 반환
     """
     if not CSV_FILE_PATH.exists():
         return None
@@ -46,7 +46,6 @@ def find_transcript_in_csv(url_or_id: str) -> Optional[Dict[str, Any]]:
                 v_id = (row.get("video_id") or "").strip().lower()
                 v_url = (row.get("url") or "").strip().lower()
 
-                # url 또는 video_id 일치 여부 확인
                 if (v_id and (v_id in target or target == v_id)) or (v_url and (v_url == target or v_id in target)):
                     segments = []
                     raw_segments = row.get("segments_json", "")
@@ -55,6 +54,22 @@ def find_transcript_in_csv(url_or_id: str) -> Optional[Dict[str, Any]]:
                             segments = json.loads(raw_segments)
                         except Exception:
                             segments = []
+
+                    summary_points = []
+                    raw_summary = row.get("summary_json", "")
+                    if raw_summary:
+                        try:
+                            summary_points = json.loads(raw_summary)
+                        except Exception:
+                            summary_points = []
+
+                    chapters = []
+                    raw_chapters = row.get("chapters_json", "")
+                    if raw_chapters:
+                        try:
+                            chapters = json.loads(raw_chapters)
+                        except Exception:
+                            chapters = []
 
                     return {
                         "video_id": row.get("video_id", ""),
@@ -66,6 +81,8 @@ def find_transcript_in_csv(url_or_id: str) -> Optional[Dict[str, Any]]:
                         "model": row.get("model", "gemini-3.5-transcribe"),
                         "full_text": row.get("full_text", ""),
                         "segments": segments,
+                        "summary_points": summary_points,
+                        "chapters": chapters,
                         "created_at": row.get("created_at", ""),
                         "cached": True,
                         "source": "csv"
@@ -77,7 +94,7 @@ def find_transcript_in_csv(url_or_id: str) -> Optional[Dict[str, Any]]:
 
 def save_transcript_to_csv(record: Dict[str, Any]) -> bool:
     """
-    트랜스크립트 데이터를 CSV 파일에 저장 (이미 동일 video_id가 있으면 갱신, 없으면 추가)
+    트랜스크립트, 3줄 요약, 챕터 데이터를 CSV 파일에 저장
     """
     init_csv_file()
     
@@ -90,7 +107,12 @@ def save_transcript_to_csv(record: Dict[str, Any]) -> bool:
     model = record.get("model", "gemini-3.5-transcribe")
     full_text = record.get("full_text", "")
     segments = record.get("segments", [])
+    summary_points = record.get("summary_points", [])
+    chapters = record.get("chapters", [])
+    
     segments_json = json.dumps(segments, ensure_ascii=False)
+    summary_json = json.dumps(summary_points, ensure_ascii=False)
+    chapters_json = json.dumps(chapters, ensure_ascii=False)
     created_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     new_row = {
@@ -103,6 +125,8 @@ def save_transcript_to_csv(record: Dict[str, Any]) -> bool:
         "model": model,
         "full_text": full_text,
         "segments_json": segments_json,
+        "summary_json": summary_json,
+        "chapters_json": chapters_json,
         "created_at": created_at
     }
 
@@ -114,10 +138,18 @@ def save_transcript_to_csv(record: Dict[str, Any]) -> bool:
             reader = csv.DictReader(f)
             for row in reader:
                 if row.get("video_id") == video_id:
-                    # 덮어쓰기(갱신)
+                    # 기존에 summary나 chapters가 있다면 유지/갱신
+                    if not summary_points and row.get("summary_json"):
+                        new_row["summary_json"] = row.get("summary_json")
+                    if not chapters and row.get("chapters_json"):
+                        new_row["chapters_json"] = row.get("chapters_json")
                     rows.append(new_row)
                     updated = True
                 else:
+                    # 구버전 행 호환
+                    for k in CSV_HEADERS:
+                        if k not in row:
+                            row[k] = ""
                     rows.append(row)
     except Exception as e:
         print(f"[CSV Storage] Read Error: {e}")

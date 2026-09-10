@@ -19,10 +19,10 @@ from typing import Optional, List, Dict, Any
 
 from services.youtube import extract_video_id, get_video_info, download_audio
 from services.transcriber import transcribe_audio_with_gemini
-from services.searcher import search_content_timestamp, answer_question_with_gemini
+from services.searcher import search_content_timestamp, answer_question_with_gemini, generate_summary_and_chapters
 from services.csv_storage import find_transcript_in_csv, save_transcript_to_csv
 
-app = FastAPI(title="AI YouTube Searcher", description="AI 유튜브 검색기 - CSV 캐싱 & 타임스탬프 탐색 & Gemini 3.8 Flash Q&A")
+app = FastAPI(title="AI YouTube Searcher", description="AI 유튜브 검색기 - 3줄 요약 & 챕터 목차 & CSV 캐싱 & Q&A")
 
 BASE_DIR = current_dir
 DOWNLOADS_DIR = BASE_DIR / "downloads"
@@ -46,6 +46,11 @@ class ChatRequest(BaseModel):
     question: str
     transcript: str
     video_title: Optional[str] = ""
+
+class SummaryRequest(BaseModel):
+    transcript: str
+    video_title: Optional[str] = ""
+    video_id: Optional[str] = ""
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_index():
@@ -104,8 +109,8 @@ async def fetch_video_info(req: VideoUrlRequest):
 async def process_transcribe(req: VideoUrlRequest):
     """
     1. CSV 파일에서 이전 트랜스크립트 존재 여부 확인
-    2. 존재하면 CSV 저장된 대본 즉시 반환 (API 호출 X)
-    3. 없으면 오디오 다운로드 + Gemini 3.5 Transcribe STT 후 CSV 파일에 저장
+    2. 존재하면 CSV 저장된 대본 및 요약/챕터 즉시 반환 (API 호출 X)
+    3. 없으면 오디오 다운로드 + Gemini 3.5 Transcribe STT + 3줄 요약/챕터 생성 후 CSV 저장
     """
     url = req.url.strip()
     if not url:
@@ -116,7 +121,25 @@ async def process_transcribe(req: VideoUrlRequest):
     # 1단계: CSV 파일에 이미 저장된 트랜스크립트가 있는지 확인
     csv_data = find_transcript_in_csv(video_id or url)
     if csv_data and csv_data.get("segments"):
-        print(f"✓ CSV 저장소에서 트랜스크립트 로드: {video_id}")
+        print(f"[API] CSV 저장소에서 트랜스크립트 로드: {video_id}")
+        
+        # 만약 과거 캐시에 summary_points나 chapters가 없으면 이번에 생성해서 CSV 갱신
+        summary_points = csv_data.get("summary_points", [])
+        chapters = csv_data.get("chapters", [])
+        if (not summary_points or not chapters) and csv_data.get("full_text"):
+            try:
+                ai_sum = generate_summary_and_chapters(
+                    transcript=csv_data["full_text"],
+                    video_title=csv_data.get("title", "")
+                )
+                summary_points = ai_sum.get("summary_points", [])
+                chapters = ai_sum.get("chapters", [])
+                csv_data["summary_points"] = summary_points
+                csv_data["chapters"] = chapters
+                save_transcript_to_csv(csv_data)
+            except Exception as e:
+                print(f"기존 캐시 요약 생성 실패: {e}")
+
         return {
             "success": True,
             "video": {
@@ -132,6 +155,8 @@ async def process_transcribe(req: VideoUrlRequest):
                 "model": csv_data["model"],
                 "segments": csv_data["segments"],
                 "full_text": csv_data["full_text"],
+                "summary_points": summary_points,
+                "chapters": chapters,
                 "cached": True,
                 "source": "csv"
             }
@@ -153,7 +178,24 @@ async def process_transcribe(req: VideoUrlRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gemini 음성 전사 실패: {str(e)}")
 
-    # 4단계: 트랜스크립트 결과를 CSV 파일에 영구 저장
+    # 4단계: Gemini 3.8 Flash로 3줄 핵심 요약 및 챕터 목차 생성
+    summary_points = []
+    chapters = []
+    if stt_result.get("full_text"):
+        try:
+            ai_sum = generate_summary_and_chapters(
+                transcript=stt_result["full_text"],
+                video_title=audio_info.get("title", "")
+            )
+            summary_points = ai_sum.get("summary_points", [])
+            chapters = ai_sum.get("chapters", [])
+        except Exception as e:
+            print(f"요약/챕터 생성 실패: {e}")
+
+    stt_result["summary_points"] = summary_points
+    stt_result["chapters"] = chapters
+
+    # 5단계: 트랜스크립트 + 요약 + 챕터 결과를 CSV 파일에 영구 저장
     try:
         save_transcript_to_csv({
             "video_id": audio_info["id"],
@@ -164,7 +206,9 @@ async def process_transcribe(req: VideoUrlRequest):
             "duration_str": audio_info.get("duration_str", "00:00"),
             "model": stt_result.get("model", "gemini-3.5-transcribe"),
             "full_text": stt_result.get("full_text", ""),
-            "segments": stt_result.get("segments", [])
+            "segments": stt_result.get("segments", []),
+            "summary_points": summary_points,
+            "chapters": chapters
         })
     except Exception as e:
         print(f"CSV 저장 중 오류: {e}")

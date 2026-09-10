@@ -42,9 +42,8 @@ def search_content_timestamp(query: str, segments: list, full_text: str = "") ->
     client = get_client()
     target_model = "gemini-3.8-flash"
 
-    # 세그먼트 요약 목록 (시간: 내용) 준비
     context_lines = []
-    for s in segments[:100]:  # 최대 100개 세그먼트 전달
+    for s in segments[:100]:
         context_lines.append(f"[{s.get('time_str')}] ({s.get('start_seconds')}s) {s.get('text')}")
     transcript_context = "\n".join(context_lines)
 
@@ -84,9 +83,7 @@ def search_content_timestamp(query: str, segments: list, full_text: str = "") ->
         t_str = ai_res.get("time_str", "00:00")
         reason = ai_res.get("reason", "검색된 위치입니다.")
 
-        # 키워드 매칭 결과와 결합
         matches = []
-        # AI 추천 위치 추가
         matches.append({
             "seconds": target_sec,
             "time_str": t_str,
@@ -95,7 +92,7 @@ def search_content_timestamp(query: str, segments: list, full_text: str = "") ->
             "highlight": True
         })
         for km in keyword_matches:
-            if abs(km["seconds"] - target_sec) > 3:  # 중복 제외
+            if abs(km["seconds"] - target_sec) > 3:
                 matches.append(km)
 
         return {
@@ -105,7 +102,6 @@ def search_content_timestamp(query: str, segments: list, full_text: str = "") ->
             "matches": matches[:10]
         }
     except Exception as e:
-        # Gemini 호출 실패 시 키워드 매칭 결과 반환
         print(f"Gemini 타임스탬프 탐색 실패: {e}")
         if keyword_matches:
             first = keyword_matches[0]
@@ -163,7 +159,6 @@ def answer_question_with_gemini(question: str, transcript: str, video_title: str
         )
         answer_text = response.text.strip()
 
-    # 답변 내의 타임스탬프 [MM:SS] 추출
     timestamps = []
     found_times = re.findall(r"\[(\d{1,2}:\d{2})\]", answer_text)
     for ft in set(found_times):
@@ -176,3 +171,74 @@ def answer_question_with_gemini(question: str, transcript: str, video_title: str
         "answer": answer_text,
         "timestamps": sorted(timestamps, key=lambda x: x["seconds"])
     }
+
+def generate_summary_and_chapters(transcript: str, video_title: str = "", segments: list = None) -> dict:
+    """
+    gemini-3.8-flash 모델을 사용하여 3줄 핵심 요약 및 자동 챕터(목차) 생성
+    """
+    client = get_client()
+    target_model = "gemini-3.8-flash"
+
+    prompt = f"""
+당신은 동영상 분석 및 요약 전문가입니다.
+동영상 제목: "{video_title}"
+
+아래는 동영상의 전체 대본과 타임스탬프입니다:
+---
+{transcript[:8000]}
+---
+
+위 내용을 분석하여:
+1. 영상의 가장 중요한 핵심 내용을 명확한 3문장(3줄 요약)으로 작성해주세요.
+2. 영상의 주요 흐름을 3~6개의 논리적인 타임라인 챕터(목차)로 나누어주세요. 각 챕터의 시작 시간(초, MM:SS), 챕터 제목, 간단한 설명을 작성해주세요.
+
+반드시 아래 JSON 형식으로만 정확히 응답해주세요:
+```json
+{{
+  "summary_points": [
+    "첫 번째 핵심 요약 문장",
+    "두 번째 핵심 요약 문장",
+    "세 번째 핵심 요약 문장"
+  ],
+  "chapters": [
+    {{
+      "start_seconds": 0.0,
+      "time_str": "00:00",
+      "title": "도입부 및 주제 소개",
+      "description": "챕터에 대한 간략한 1줄 설명"
+    }},
+    {{
+      "start_seconds": 46.0,
+      "time_str": "00:46",
+      "title": "핵심 원인 분석",
+      "description": "세부 내용 설명"
+    }}
+  ]
+}}
+```
+"""
+
+    try:
+        response = client.models.generate_content(
+            model=target_model,
+            contents=prompt
+        )
+        res_text = response.text.strip()
+        if "```" in res_text:
+            res_text = res_text.split("```")[1]
+            if res_text.startswith("json"):
+                res_text = res_text[4:]
+        data = json.loads(res_text.strip())
+        return {
+            "summary_points": data.get("summary_points", []),
+            "chapters": data.get("chapters", [])
+        }
+    except Exception as e:
+        print(f"요약 및 챕터 생성 오류: {e}")
+        # fallback 기본 챕터 생성
+        return {
+            "summary_points": ["동영상 음성 분석이 완료되었습니다."],
+            "chapters": [
+                {"start_seconds": 0.0, "time_str": "00:00", "title": "영상 시작", "description": "전체 재생"}
+            ]
+        }

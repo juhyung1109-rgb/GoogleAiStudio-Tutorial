@@ -81,6 +81,31 @@
           <span id="status-badge" class="status-badge">대기 상태</span>
         </div>
       </div>
+
+      <!-- ✨ AI 3줄 핵심 요약 & 타임라인 챕터 카드 -->
+      <div id="ai-summary-section" class="ai-summary-section" style="display: none;">
+        <!-- 3줄 요약 -->
+        <div class="summary-card">
+          <div class="summary-card-header">
+            <span class="summary-icon">✨</span>
+            <span class="summary-title">Gemini 3.8 Flash 핵심 3줄 요약</span>
+          </div>
+          <ul id="summary-points-list" class="summary-points-list">
+            <li>영상 분석 후 요약이 표시됩니다.</li>
+          </ul>
+        </div>
+
+        <!-- 타임라인 챕터 목차 -->
+        <div class="chapters-card">
+          <div class="chapters-card-header">
+            <span class="chapters-icon">📑</span>
+            <span class="chapters-title">스마트 타임라인 챕터 (클릭 시 이동)</span>
+          </div>
+          <div id="chapters-chips-container" class="chapters-chips-container">
+            <!-- 챕터 칩 동적 생성 -->
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- 오른쪽: AI 검색 & 질의응답 사이드바 -->

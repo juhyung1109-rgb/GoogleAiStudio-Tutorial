@@ -1,4 +1,4 @@
-// YouTube IFrame Player API 및 상태 변수
+﻿// YouTube IFrame Player API 및 상태 변수
 let ytPlayer = null;
 let isPlayerReady = false;
 let currentVideoId = "";
@@ -149,7 +149,7 @@ async function handleUrlSubmit() {
     // 플레이어 즉시 실행
     initOrLoadPlayer(currentVideoInfo.id);
 
-    // 2단계: 백그라운드 STT 및 타임스탬프 추출
+    // 2단계: 백그라운드 STT 및 3줄 요약/챕터 분석
     startAudioTranscribe(url);
   } catch (err) {
     console.error(err);
@@ -160,7 +160,7 @@ async function handleUrlSubmit() {
 
 async function startAudioTranscribe(url) {
   statusBadge.className = "status-badge";
-  statusBadge.innerHTML = `<span class="spinner"></span> Gemini 3.5 Transcribe 음성 분석 중...`;
+  statusBadge.innerHTML = `<span class="spinner"></span> Gemini 3.5 Transcribe 음성 분석 및 요약 중...`;
 
   try {
     const res = await fetch("/api/transcribe", {
@@ -178,14 +178,20 @@ async function startAudioTranscribe(url) {
         showToast("이전에 저장된 대본(CSV)을 즉시 불러왔습니다.");
       } else {
         statusBadge.textContent = `✓ AI 분석 완료 (${data.transcription.model})`;
-        showToast("AI 음성 분석이 완료되어 CSV에 저장되었습니다.");
+        showToast("AI 음성 분석 및 요약이 완료되었습니다.");
       }
       
+      // ✨ AI 3줄 요약 & 타임라인 챕터 렌더링
+      renderSummaryAndChapters(
+        data.transcription.summary_points,
+        data.transcription.chapters
+      );
+
       // 대본 탭 렌더링
       renderTranscriptList(data.transcription.segments);
 
       // 챗봇 시스템 안내 메시지
-      appendChatMessage("ai", `동영상 음성 분석 대본이 준비되었습니다! <strong>전체 대본</strong> 탭에서 타임스탬프별 대사를 확인하시거나, 궁금한 점을 질문해보세요.`);
+      appendChatMessage("ai", `동영상 음성 분석 및 핵심 요약이 준비되었습니다! 하단의 <strong>AI 3줄 요약</strong>과 <strong>타임라인 챕터</strong>를 확인하시거나 궁금한 점을 질문해보세요.`);
     } else {
       statusBadge.textContent = "분석 실패";
     }
@@ -195,7 +201,59 @@ async function startAudioTranscribe(url) {
   }
 }
 
-// 5. 내용 검색창 (사이드바 내용 검색 탭 내부)
+// ✨ 5. AI 3줄 요약 및 스마트 챕터 목차 렌더링
+function renderSummaryAndChapters(summaryPoints, chapters) {
+  const section = document.getElementById("ai-summary-section");
+  const summaryList = document.getElementById("summary-points-list");
+  const chaptersContainer = document.getElementById("chapters-chips-container");
+
+  if (!section) return;
+
+  // 요약 렌더링
+  if (summaryPoints && summaryPoints.length > 0) {
+    summaryList.innerHTML = summaryPoints
+      .map((p) => `<li>${escapeHtml(p)}</li>`)
+      .join("");
+  } else {
+    summaryList.innerHTML = `<li>동영상 음성 분석이 완료되었습니다.</li>`;
+  }
+
+  // 챕터 렌더링
+  chaptersContainer.innerHTML = "";
+  if (chapters && chapters.length > 0) {
+    chapters.forEach((chap, idx) => {
+      const chip = document.createElement("div");
+      chip.className = "chapter-chip";
+      chip.id = `chapter-chip-${idx}`;
+      chip.dataset.seconds = chap.start_seconds;
+      chip.onclick = () => {
+        jumpToTime(chap.start_seconds);
+        highlightActiveChapter(idx);
+      };
+
+      chip.innerHTML = `
+        <span class="chapter-time">${chap.time_str}</span>
+        <div class="chapter-info">
+          <span class="chapter-title-text">${escapeHtml(chap.title)}</span>
+          ${chap.description ? `<span class="chapter-desc-text">${escapeHtml(chap.description)}</span>` : ""}
+        </div>
+      `;
+      chaptersContainer.appendChild(chip);
+    });
+  } else {
+    chaptersContainer.innerHTML = `<span style="font-size:12px; color:#aaa;">타임라인 챕터가 없습니다.</span>`;
+  }
+
+  section.style.display = "flex";
+}
+
+function highlightActiveChapter(idx) {
+  document.querySelectorAll(".chapter-chip").forEach((c) => c.classList.remove("active"));
+  const activeChip = document.getElementById(`chapter-chip-${idx}`);
+  if (activeChip) activeChip.classList.add("active");
+}
+
+// 6. 내용 검색창 (사이드바 내용 검색 탭 내부)
 const contentSearchInput = document.getElementById("content-search-input");
 const contentSearchBtn = document.getElementById("content-search-btn");
 
@@ -237,7 +295,6 @@ async function handleContentSearch(query) {
       const data = json.data;
       renderSearchResults(data);
 
-      // 가장 관련성 높은 위치로 즉시 자동 점프 & 재생!
       if (data.target_seconds !== undefined && data.target_seconds !== null) {
         jumpToTime(data.target_seconds);
       }
@@ -283,7 +340,7 @@ function renderSearchResults(data) {
   });
 }
 
-// 6. 전체 대본 렌더링
+// 7. 전체 대본 렌더링
 function renderTranscriptList(segments) {
   const container = document.getElementById("transcript-list");
   container.innerHTML = "";
@@ -311,42 +368,62 @@ function renderTranscriptList(segments) {
   });
 }
 
-// 현재 재생 시간과 대본 동기화
+// 현재 재생 시간과 대본 & 챕터 동기화
 let activeIndex = -1;
+let activeChapterIdx = -1;
 function startSyncTracker() {
   setInterval(() => {
-    if (!ytPlayer || !transcriptionData || !transcriptionData.segments) return;
+    if (!ytPlayer || !transcriptionData) return;
     if (typeof ytPlayer.getCurrentTime !== "function") return;
 
     const currentSec = ytPlayer.getCurrentTime();
-    const segments = transcriptionData.segments;
-    let foundIdx = -1;
 
-    for (let i = 0; i < segments.length; i++) {
-      if (currentSec >= segments[i].start_seconds) {
-        foundIdx = i;
-      } else {
-        break;
+    // 1. 대본 하이라이트 동기화
+    if (transcriptionData.segments) {
+      const segments = transcriptionData.segments;
+      let foundIdx = -1;
+      for (let i = 0; i < segments.length; i++) {
+        if (currentSec >= segments[i].start_seconds) {
+          foundIdx = i;
+        } else {
+          break;
+        }
+      }
+
+      if (foundIdx !== -1 && foundIdx !== activeIndex) {
+        if (activeIndex !== -1) {
+          const prev = document.getElementById(`ts-item-${activeIndex}`);
+          if (prev) prev.classList.remove("current");
+        }
+        activeIndex = foundIdx;
+        const curr = document.getElementById(`ts-item-${activeIndex}`);
+        if (curr) {
+          curr.classList.add("current");
+          curr.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
       }
     }
 
-    if (foundIdx !== -1 && foundIdx !== activeIndex) {
-      if (activeIndex !== -1) {
-        const prev = document.getElementById(`ts-item-${activeIndex}`);
-        if (prev) prev.classList.remove("current");
+    // 2. 챕터 칩 하이라이트 동기화
+    if (transcriptionData.chapters && transcriptionData.chapters.length > 0) {
+      const chapters = transcriptionData.chapters;
+      let foundChap = -1;
+      for (let j = 0; j < chapters.length; j++) {
+        if (currentSec >= chapters[j].start_seconds) {
+          foundChap = j;
+        } else {
+          break;
+        }
       }
-      activeIndex = foundIdx;
-      const curr = document.getElementById(`ts-item-${activeIndex}`);
-      if (curr) {
-        curr.classList.add("current");
-        // 자동 스크롤
-        curr.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      if (foundChap !== -1 && foundChap !== activeChapterIdx) {
+        activeChapterIdx = foundChap;
+        highlightActiveChapter(activeChapterIdx);
       }
     }
   }, 500);
 }
 
-// 7. Gemini 3.8 Flash 대화형 Q&A
+// 8. Gemini 3.8 Flash 대화형 Q&A
 const chatInput = document.getElementById("chat-input");
 const chatSendBtn = document.getElementById("chat-send-btn");
 const chatMessages = document.getElementById("chat-messages");
@@ -403,7 +480,6 @@ function appendChatMessage(sender, htmlContent) {
   return bubble;
 }
 
-// 답변 내 [MM:SS] 타임스탬프를 클릭 가능한 링크로 변환
 function linkifyTimestamps(text) {
   const escaped = escapeHtml(text);
   return escaped.replace(/\[(\d{1,2}:\d{2})\]/g, (match, p1) => {
@@ -413,7 +489,7 @@ function linkifyTimestamps(text) {
   });
 }
 
-// 8. 탭 전환 처리
+// 9. 탭 전환 처리
 window.switchTab = function (tabId) {
   document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.remove("active"));
   document.querySelectorAll(".tab-content").forEach((c) => c.classList.remove("active"));

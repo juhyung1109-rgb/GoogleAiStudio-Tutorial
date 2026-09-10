@@ -365,6 +365,141 @@ body {
   color: #2ecc71;
 }
 
+/* ✨ AI 3줄 요약 & 스마트 챕터 섹션 */
+.ai-summary-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, rgba(35, 35, 45, 0.8) 0%, rgba(25, 25, 35, 0.95) 100%);
+  border: 1px solid rgba(62, 166, 255, 0.3);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.summary-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.summary-icon {
+  font-size: 18px;
+}
+
+.summary-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #3ea6ff;
+  letter-spacing: -0.3px;
+}
+
+.summary-points-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-points-list li {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #e0e0e0;
+}
+
+/* 챕터 목차 카드 */
+.chapters-card {
+  background-color: var(--yt-surface);
+  border: 1px solid var(--yt-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.chapters-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.chapters-icon {
+  font-size: 16px;
+}
+
+.chapters-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--yt-text-primary);
+}
+
+.chapters-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chapter-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #272727;
+  border: 1px solid #3f3f3f;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+}
+
+.chapter-chip:hover {
+  background-color: #383838;
+  border-color: #3ea6ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(62, 166, 255, 0.2);
+}
+
+.chapter-chip.active {
+  background-color: rgba(62, 166, 255, 0.2);
+  border-color: #3ea6ff;
+}
+
+.chapter-time {
+  background-color: #065fd4;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.chapter-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.chapter-title-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.chapter-desc-text {
+  font-size: 11px;
+  color: #aaaaaa;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* 오른쪽 AI 분석 및 검색 사이드바 */
 .sidebar-column {
   width: 440px;
