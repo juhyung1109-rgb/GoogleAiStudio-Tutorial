@@ -20,8 +20,9 @@ from typing import Optional, List, Dict, Any
 from services.youtube import extract_video_id, get_video_info, download_audio
 from services.transcriber import transcribe_audio_with_gemini
 from services.searcher import search_content_timestamp, answer_question_with_gemini
+from services.csv_storage import find_transcript_in_csv, save_transcript_to_csv
 
-app = FastAPI(title="AI YouTube Searcher", description="AI 유튜브 검색기 - 타임스탬프 기반 탐색 & Gemini 3.8 Flash Q&A")
+app = FastAPI(title="AI YouTube Searcher", description="AI 유튜브 검색기 - CSV 캐싱 & 타임스탬프 탐색 & Gemini 3.8 Flash Q&A")
 
 BASE_DIR = current_dir
 DOWNLOADS_DIR = BASE_DIR / "downloads"
@@ -64,11 +65,28 @@ async def fetch_video_info(req: VideoUrlRequest):
     if not video_id:
         raise HTTPException(status_code=400, detail="유효한 유튜브 비디오 ID를 찾을 수 없습니다.")
 
+    # 1. 혹시 CSV에 이미 메타데이터가 있는지 먼저 확인
+    csv_record = find_transcript_in_csv(video_id)
+    if csv_record:
+        return {
+            "success": True,
+            "video": {
+                "id": csv_record["video_id"],
+                "url": csv_record["url"],
+                "title": csv_record["title"],
+                "uploader": csv_record["uploader"],
+                "duration": csv_record["duration"],
+                "duration_str": csv_record["duration_str"],
+                "thumbnail": f"https://i.ytimg.com/vi/{csv_record['video_id']}/hqdefault.jpg",
+                "cached": True
+            }
+        }
+
+    # 2. CSV에 없으면 yt-dlp로 정보 조회
     try:
         info = get_video_info(url)
         return {"success": True, "video": info}
     except Exception as e:
-        # 메타데이터 추출 실패 시에도 최소 비디오 ID로 시청 가능하게 반환
         return {
             "success": True,
             "video": {
@@ -84,20 +102,50 @@ async def fetch_video_info(req: VideoUrlRequest):
 
 @app.post("/api/transcribe")
 async def process_transcribe(req: VideoUrlRequest):
-    """오디오 다운로드 및 Gemini 3.5 Transcribe STT 수행"""
+    """
+    1. CSV 파일에서 이전 트랜스크립트 존재 여부 확인
+    2. 존재하면 CSV 저장된 대본 즉시 반환 (API 호출 X)
+    3. 없으면 오디오 다운로드 + Gemini 3.5 Transcribe STT 후 CSV 파일에 저장
+    """
     url = req.url.strip()
     if not url:
         raise HTTPException(status_code=400, detail="유튜브 URL을 입력해 주세요.")
 
-    # 1. 오디오 다운로드
+    video_id = extract_video_id(url)
+
+    # 1단계: CSV 파일에 이미 저장된 트랜스크립트가 있는지 확인
+    csv_data = find_transcript_in_csv(video_id or url)
+    if csv_data and csv_data.get("segments"):
+        print(f"✓ CSV 저장소에서 트랜스크립트 로드: {video_id}")
+        return {
+            "success": True,
+            "video": {
+                "id": csv_data["video_id"],
+                "url": csv_data["url"],
+                "title": csv_data["title"],
+                "uploader": csv_data["uploader"],
+                "duration": csv_data["duration"],
+                "duration_str": csv_data["duration_str"],
+                "thumbnail": f"https://i.ytimg.com/vi/{csv_data['video_id']}/hqdefault.jpg",
+            },
+            "transcription": {
+                "model": csv_data["model"],
+                "segments": csv_data["segments"],
+                "full_text": csv_data["full_text"],
+                "cached": True,
+                "source": "csv"
+            }
+        }
+
+    # 2단계: CSV에 없으면 신규 오디오 다운로드
     try:
         audio_info = download_audio(url, str(DOWNLOADS_DIR))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"오디오 다운로드 실패: {str(e)}")
 
-    # 2. Gemini STT 전사 및 타임스탬프 추출
+    # 3단계: Gemini 3.5 Transcribe STT 수행
     try:
-        result = transcribe_audio_with_gemini(
+        stt_result = transcribe_audio_with_gemini(
             file_path=audio_info["file_path"],
             mime_type=audio_info["mime_type"],
             video_id=audio_info["id"]
@@ -105,10 +153,26 @@ async def process_transcribe(req: VideoUrlRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gemini 음성 전사 실패: {str(e)}")
 
+    # 4단계: 트랜스크립트 결과를 CSV 파일에 영구 저장
+    try:
+        save_transcript_to_csv({
+            "video_id": audio_info["id"],
+            "url": audio_info.get("url") or f"https://www.youtube.com/watch?v={audio_info['id']}",
+            "title": audio_info.get("title", ""),
+            "uploader": audio_info.get("uploader", ""),
+            "duration": audio_info.get("duration", 0),
+            "duration_str": audio_info.get("duration_str", "00:00"),
+            "model": stt_result.get("model", "gemini-3.5-transcribe"),
+            "full_text": stt_result.get("full_text", ""),
+            "segments": stt_result.get("segments", [])
+        })
+    except Exception as e:
+        print(f"CSV 저장 중 오류: {e}")
+
     return {
         "success": True,
         "video": audio_info,
-        "transcription": result
+        "transcription": stt_result
     }
 
 @app.post("/api/search")

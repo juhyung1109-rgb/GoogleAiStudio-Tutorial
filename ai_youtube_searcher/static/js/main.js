@@ -1,4 +1,4 @@
-﻿// YouTube IFrame Player API 및 상태 변수
+// YouTube IFrame Player API 및 상태 변수
 let ytPlayer = null;
 let isPlayerReady = false;
 let currentVideoId = "";
@@ -173,13 +173,19 @@ async function startAudioTranscribe(url) {
     if (data.success && data.transcription) {
       transcriptionData = data.transcription;
       statusBadge.className = "status-badge done";
-      statusBadge.textContent = `✓ AI 분석 완료 (${data.transcription.model})`;
+      if (data.transcription.source === "csv" || data.transcription.cached) {
+        statusBadge.textContent = `✓ 저장된 대본 로드됨 (CSV)`;
+        showToast("이전에 저장된 대본(CSV)을 즉시 불러왔습니다.");
+      } else {
+        statusBadge.textContent = `✓ AI 분석 완료 (${data.transcription.model})`;
+        showToast("AI 음성 분석이 완료되어 CSV에 저장되었습니다.");
+      }
       
       // 대본 탭 렌더링
       renderTranscriptList(data.transcription.segments);
 
       // 챗봇 시스템 안내 메시지
-      appendChatMessage("ai", `동영상 음성 분석이 완료되었습니다! <strong>전체 대본</strong> 탭에서 타임스탬프별 대사를 확인하시거나, 궁금한 점을 질문해보세요.`);
+      appendChatMessage("ai", `동영상 음성 분석 대본이 준비되었습니다! <strong>전체 대본</strong> 탭에서 타임스탬프별 대사를 확인하시거나, 궁금한 점을 질문해보세요.`);
     } else {
       statusBadge.textContent = "분석 실패";
     }
