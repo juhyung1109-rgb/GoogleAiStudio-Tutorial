@@ -1,0 +1,582 @@
+<title>100만원으로 1월 22일까지 버틸까</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#F4F6F8; --surface:#FFFFFF; --surface-2:#EDF1F4;
+  --ink:#16202B; --ink-2:#3D4C5A; --muted:#66757F;
+  --rule:#D8DFE5; --rule-strong:#BCC7D0;
+  --accent:#2F6F6B; --accent-soft:#DCEAE7;
+  --warn:#9A6416; --warn-soft:#F3E7D2;
+  --danger:#A2402F; --danger-soft:#F5DFDA;
+  --gold:#8A6A20;
+  --shadow:0 1px 2px rgba(22,32,43,.06), 0 8px 24px -16px rgba(22,32,43,.30);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111820; --surface:#19222C; --surface-2:#212D38;
+    --ink:#E7EDF2; --ink-2:#BDC9D3; --muted:#8B9AA6;
+    --rule:#2C3945; --rule-strong:#3E4E5C;
+    --accent:#68BDB2; --accent-soft:#1E3A38;
+    --warn:#D6A44E; --warn-soft:#3A2F1B;
+    --danger:#DF8271; --danger-soft:#3B2420;
+    --gold:#CDA85A;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111820; --surface:#19222C; --surface-2:#212D38;
+  --ink:#E7EDF2; --ink-2:#BDC9D3; --muted:#8B9AA6;
+  --rule:#2C3945; --rule-strong:#3E4E5C;
+  --accent:#68BDB2; --accent-soft:#1E3A38;
+  --warn:#D6A44E; --warn-soft:#3A2F1B;
+  --danger:#DF8271; --danger-soft:#3B2420;
+  --gold:#CDA85A;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-weight:400; font-size:16px; line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:940px; margin:0 auto; padding:0 24px 96px}
+p,li{color:var(--ink-2)}
+strong{color:var(--ink); font-weight:600}
+a{color:var(--accent)}
+.num{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; font-weight:500}
+
+/* ---- masthead ---- */
+header.mast{border-bottom:2px solid var(--ink); margin-bottom:40px; padding:56px 0 20px}
+.eyebrow{font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); font-weight:600; margin:0 0 14px}
+h1{
+  font-family:"Gowun Batang","Apple SD Gothic Neo",serif; font-weight:700;
+  font-size:clamp(30px,5vw,46px); line-height:1.24; margin:0 0 16px;
+  text-wrap:balance; letter-spacing:-.01em; color:var(--ink);
+}
+.dek{font-size:17px; line-height:1.7; max-width:62ch; margin:0 0 26px; color:var(--ink-2)}
+.meta{display:flex; flex-wrap:wrap; gap:0 28px; font-size:13px; color:var(--muted); border-top:1px solid var(--rule); padding-top:14px}
+.meta span strong{color:var(--ink-2); font-weight:600}
+
+/* ---- sections ---- */
+section{margin:0 0 56px; scroll-margin-top:20px}
+h2{
+  font-family:"Gowun Batang",serif; font-weight:700; font-size:26px; line-height:1.35;
+  margin:0 0 6px; letter-spacing:-.01em; display:flex; align-items:baseline; gap:14px;
+}
+h2 .sec{
+  font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600;
+  color:var(--accent); letter-spacing:.05em; flex:none;
+}
+.sub{font-size:14px; color:var(--muted); margin:0 0 22px; padding-left:38px}
+h2 em.neg{font-style:normal; color:var(--danger); border-bottom:2px solid var(--danger); padding-bottom:1px}
+h3{font-size:16px; font-weight:600; margin:28px 0 10px; color:var(--ink); letter-spacing:-.005em}
+
+/* ---- verdict ---- */
+.verdict{
+  background:var(--surface); border:1px solid var(--rule); border-left:4px solid var(--accent);
+  border-radius:3px; padding:26px 28px; box-shadow:var(--shadow); margin-bottom:44px;
+}
+.verdict h2{font-size:21px; margin-bottom:14px}
+.verdict p{margin:0 0 12px}
+.verdict p:last-child{margin-bottom:0}
+.kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--rule); border:1px solid var(--rule); border-radius:3px; margin:22px 0 4px; overflow:hidden}
+.kpi{background:var(--surface); padding:16px 18px}
+.kpi .k{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:6px}
+.kpi .v{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; font-size:22px; font-weight:600; color:var(--ink); line-height:1.2}
+.kpi .v.pos{color:var(--accent)} .kpi .v.neg{color:var(--danger)}
+.kpi .n{font-size:12px; color:var(--muted); margin-top:4px}
+
+/* ---- tables ---- */
+.tw{overflow-x:auto; border:1px solid var(--rule); border-radius:3px; background:var(--surface); box-shadow:var(--shadow)}
+table{border-collapse:collapse; width:100%; min-width:560px; font-size:14px}
+th,td{padding:11px 16px; text-align:left; border-bottom:1px solid var(--rule)}
+thead th{
+  background:var(--surface-2); font-size:11px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--muted); font-weight:600; white-space:nowrap; border-bottom:1px solid var(--rule-strong);
+}
+tbody tr:last-child td{border-bottom:none}
+td.n,th.n{text-align:right; font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; white-space:nowrap}
+tbody tr.total td{background:var(--surface-2); font-weight:600; color:var(--ink)}
+td .mod{font-weight:500; color:var(--ink)}
+.cap{font-size:12.5px; color:var(--muted); margin:10px 0 0; line-height:1.6}
+
+/* ---- chart ---- */
+.chart{background:var(--surface); border:1px solid var(--rule); border-radius:3px; padding:26px 28px 20px; box-shadow:var(--shadow)}
+.chart .ct{font-size:13px; font-weight:600; color:var(--ink); margin:0 0 3px}
+.chart .cs{font-size:12.5px; color:var(--muted); margin:0 0 24px}
+.plot{position:relative; padding-top:22px}
+.budgetline{position:absolute; top:0; bottom:14px; width:0; border-left:2px dashed var(--danger); z-index:2}
+.budgetline b{
+  position:absolute; top:-4px; left:6px; font-size:11px; font-weight:600; color:var(--danger);
+  white-space:nowrap; font-family:"IBM Plex Mono",monospace; background:var(--surface); padding:0 4px;
+}
+.grp{display:grid; grid-template-columns:88px 1fr; gap:0 14px; align-items:center; margin-bottom:18px}
+.grp .lb{font-size:13px; font-weight:600; color:var(--ink); line-height:1.3}
+.grp .lb em{display:block; font-style:normal; font-size:11px; color:var(--muted); font-weight:400}
+.bars{display:flex; flex-direction:column; gap:5px}
+.bar{display:flex; align-items:center; gap:9px; height:24px}
+.bar .track{flex:1; height:100%; background:var(--surface-2); border-radius:2px; overflow:hidden; position:relative}
+.bar .fill{height:100%; border-radius:2px 0 0 2px; display:block}
+.bar .fill.api{background:linear-gradient(90deg,var(--rule-strong),var(--muted))}
+.bar .fill.api.over{background:linear-gradient(90deg,var(--danger-soft),var(--danger))}
+.bar .fill.sub{background:linear-gradient(90deg,var(--accent-soft),var(--accent))}
+.bar .val{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; font-size:12px; width:96px; text-align:right; color:var(--ink-2); flex:none}
+.bar .tag{font-size:10.5px; letter-spacing:.05em; color:var(--muted); width:52px; flex:none; text-transform:uppercase; font-weight:600}
+.legend{display:flex; flex-wrap:wrap; gap:18px; border-top:1px solid var(--rule); padding-top:14px; margin-top:6px; font-size:12px; color:var(--muted)}
+.legend i{display:inline-block; width:22px; height:9px; border-radius:2px; margin-right:7px; vertical-align:-1px}
+
+/* ---- savings chart ---- */
+.srow{display:grid; grid-template-columns:130px 1fr 108px; gap:0 14px; align-items:center; padding:9px 0; border-bottom:1px solid var(--rule)}
+.srow:last-of-type{border-bottom:none}
+.srow .sl{font-size:13px; color:var(--ink); font-weight:500}
+.sbars{display:flex; flex-direction:column; gap:3px}
+.sb{height:11px; border-radius:2px}
+.sb.a{background:var(--muted); opacity:.7}
+.sb.b{background:var(--accent)}
+.sv{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; font-size:12.5px; text-align:right; color:var(--accent); font-weight:600}
+.sv.zero{color:var(--muted)}
+
+/* ---- callouts ---- */
+.note{border-radius:3px; padding:16px 20px; font-size:14.5px; line-height:1.7; margin:22px 0; border:1px solid}
+.note p{margin:0; color:inherit}
+.note p + p{margin-top:9px}
+.note .nt{display:block; font-size:11px; letter-spacing:.11em; text-transform:uppercase; font-weight:700; margin-bottom:7px}
+.note.warn{background:var(--warn-soft); border-color:color-mix(in srgb, var(--warn) 35%, transparent); color:var(--ink)}
+.note.warn .nt{color:var(--warn)}
+.note.good{background:var(--accent-soft); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--ink)}
+.note.good .nt{color:var(--accent)}
+.note.bad{background:var(--danger-soft); border-color:color-mix(in srgb, var(--danger) 35%, transparent); color:var(--ink)}
+.note.bad .nt{color:var(--danger)}
+
+/* ---- coverage cards ---- */
+.cov{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; margin:22px 0}
+.covc{background:var(--surface); border:1px solid var(--rule); border-radius:3px; padding:18px 20px}
+.covc h4{margin:0 0 4px; font-size:14.5px; font-weight:600; color:var(--ink)}
+.covc .tool{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--accent); letter-spacing:.03em; margin-bottom:9px}
+.covc p{margin:0; font-size:13.5px; line-height:1.65; color:var(--ink-2)}
+
+/* ---- checklist ---- */
+ol.steps{list-style:none; counter-reset:s; padding:0; margin:22px 0 0}
+ol.steps li{counter-increment:s; position:relative; padding:0 0 18px 46px; margin:0; border-left:1px solid var(--rule); margin-left:13px}
+ol.steps li:last-child{border-left-color:transparent; padding-bottom:0}
+ol.steps li::before{
+  content:counter(s,decimal-leading-zero); position:absolute; left:-13px; top:1px;
+  width:26px; height:26px; border-radius:50%; background:var(--surface); border:1px solid var(--rule-strong);
+  color:var(--accent); font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+}
+ol.steps li b{display:block; color:var(--ink); font-weight:600; font-size:15px; margin-bottom:2px}
+ol.steps li span{font-size:14px; color:var(--ink-2); line-height:1.65}
+
+ul.plain{padding-left:20px; margin:14px 0}
+ul.plain li{margin-bottom:9px}
+
+footer{border-top:1px solid var(--rule); padding-top:22px; margin-top:56px; font-size:13px; color:var(--muted)}
+footer h3{font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 12px; font-weight:600}
+footer ol{padding-left:20px; margin:0}
+footer li{margin-bottom:6px; line-height:1.6; color:var(--muted)}
+footer a{color:var(--muted); text-decoration:underline; text-underline-offset:2px}
+footer a:hover{color:var(--accent)}
+footer .disc{margin-top:20px; padding-top:16px; border-top:1px solid var(--rule); font-size:12.5px; line-height:1.7}
+
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.bar .fill,.sb{transition:width .2s ease}}
+@media (max-width:620px){
+  .grp{grid-template-columns:1fr; gap:6px}
+  .bar .val{width:82px; font-size:11px}
+  .bar .tag{width:44px}
+  .srow{grid-template-columns:1fr; gap:6px; }
+  .sv{text-align:left}
+  .sub{padding-left:0}
+  h2{flex-direction:column; gap:2px}
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">웹프로그래밍 · 수강생 비용 가이드</p>
+  <h1>100만원으로 1월 22일까지 버틸까</h1>
+  <p class="dek">중간·최종 프로젝트와 LLM Wiki 수업자료 정리까지, 학생 1인당 GCP·Gemini API 예산 100만원의 소진 시나리오를 계산했습니다. 결론부터: <strong>쓰는 방식에 따라 24%만 쓰고 끝날 수도, 181%로 81만원을 초과할 수도 있습니다.</strong> 그 차이를 가르는 가장 저렴한 장치가 월 29,000원짜리 개인 Google AI Pro 구독이고, 그다음이 <strong>$300 신규 크레딧을 Vertex AI 경로로 붙이는 것</strong>입니다.</p>
+  <div class="meta">
+    <span><strong>산정 기간</strong> 2026.09.09 → 2027.01.22 (19주 · 청구월 5회)</span>
+    <span><strong>기준 환율</strong> 1,350원/USD</span>
+    <span><strong>단가 기준일</strong> 2026.09.09</span>
+  </div>
+</header>
+
+<div class="verdict">
+  <h2>한 줄 결론</h2>
+  <p><strong>API 예산 100만원은 “Pro 모델을 상시로 쓰는 바이브 코딩”을 감당하지 못합니다.</strong> 에이전트가 매 호출마다 대화 이력을 통째로 재전송하기 때문에, 기능 하나를 완성하는 데 누적 입력만 200만 토큰이 쌓입니다. 그러나 <strong>개인 Google AI Pro(월 29,000원)는 이 코드 생성·자료 정리 트래픽을 정액 구독 한도로 흡수</strong>하고, 여기에 <strong>매월 $10의 Google Cloud 크레딧까지 예산으로 되돌려줍니다.</strong></p>
+  <div class="kpis">
+    <div class="kpi"><div class="k">구독 5개월 총액</div><div class="v">145,000원</div><div class="n">29,000원 × 5개월</div></div>
+    <div class="kpi"><div class="k">포함 Cloud 크레딧</div><div class="v pos">−67,500원</div><div class="n">$10 × 5개월 환류</div></div>
+    <div class="kpi"><div class="k">실질 순부담</div><div class="v">77,500원</div><div class="n">예산의 7.8%</div></div>
+    <div class="kpi"><div class="k">표준 시나리오 절감</div><div class="v pos">503,700원</div><div class="n">투입 대비 6.5배</div></div>
+  </div>
+</div>
+
+<section>
+  <h2><span class="sec">01</span>왜 100만원이 위태로운가</h2>
+  <p class="sub">부가세와 환율을 걷어내면 실제로 쓸 수 있는 돈은 생각보다 적습니다.</p>
+  <p>사업자등록번호가 없는 개인 명의 Google Cloud 계정은 <strong>부가세 10%가 별도 청구</strong>됩니다. 100만원을 부가세 포함 총액으로 보면 실사용 가능액은 <span class="num">909,091원</span>, 2026년 9월 9일 환율(<span class="num">1,336원</span>) 기준 약 <strong>$673</strong>입니다. 이 돈으로 4.5개월 동안 <em>Gemini API + Firebase + Cloud Run + BigQuery + Storage</em>를 전부 감당해야 합니다.</p>
+  <p>더 중요한 함정이 하나 있습니다. Gemini 3.8 Flash의 현재 단가는 <strong>2026년 12월 31일까지만 유효한 프로모션가</strong>이고, 2027년 1월 1일부터 입력·출력 모두 정확히 2배가 됩니다. 최종 프로젝트를 마무리하고 발표 자료를 몰아서 만드는 <strong>1월 3주는 이미 인상된 단가가 적용되는 구간</strong>입니다.</p>
+
+  <h3>주요 모델 단가 (100만 토큰당, USD)</h3>
+  <div class="tw">
+  <table>
+    <thead><tr><th>모델</th><th class="n">입력</th><th class="n">출력</th><th class="n">캐시 입력</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td><span class="mod">Gemini 3.1 Pro Preview</span> ≤200K</td><td class="n">$2.00</td><td class="n">$12.00</td><td class="n">$0.20</td><td>설계·난제용</td></tr>
+      <tr><td><span class="mod">Gemini 3.1 Pro Preview</span> &gt;200K</td><td class="n">$4.00</td><td class="n">$18.00</td><td class="n">$0.40</td><td>컨텍스트 초과 시 2배</td></tr>
+      <tr><td><span class="mod">Gemini 3.8 Flash</span></td><td class="n">$0.75</td><td class="n">$3.75</td><td class="n">$0.075</td><td>~2026.12.31 프로모션</td></tr>
+      <tr><td><span class="mod">Gemini 3.8 Flash</span> 2027.01.01~</td><td class="n">$1.50</td><td class="n">$7.50</td><td class="n">$0.15</td><td>발표 준비 구간 적용</td></tr>
+      <tr><td><span class="mod">Gemini 3.5 Flash-Lite</span></td><td class="n">$0.30</td><td class="n">$2.50</td><td class="n">—</td><td>분류·요약·파싱</td></tr>
+      <tr><td><span class="mod">Gemini 3.1 Flash Image</span> (Nano Banana 2)</td><td class="n">$0.50</td><td class="n">$60.00</td><td class="n">—</td><td>출력은 이미지 토큰</td></tr>
+      <tr><td><span class="mod">Gemini 3 Pro Image</span> (Nano Banana Pro)</td><td class="n">$2.00</td><td class="n">$120.00</td><td class="n">—</td><td>출력은 이미지 토큰</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="cap">Batch API는 전 모델 약 50% 할인. Google 검색 그라운딩은 월 5,000회 무료, 초과분 1,000회당 $14. 무료 등급은 결제 계정을 연결하는 즉시 Tier 1로 전환되며, Tier 1의 지출 한도는 10분당 $10입니다.</p>
+</section>
+
+<section>
+  <h2><span class="sec">02</span>학생 1인 워크로드 가정</h2>
+  <p class="sub">19주 동안 실제로 일어나는 일을 토큰으로 환산했습니다.</p>
+  <p>에이전트 코딩의 비용은 “대화 몇 번 했나”가 아니라 <strong>“한 작업에 API 호출이 몇 번 쌓였나”</strong>로 결정됩니다. 매 호출이 지금까지의 대화·파일·툴 출력 전체를 다시 입력으로 보내기 때문에, 기능 하나에 100번의 호출이 붙으면 누적 입력은 200만 토큰을 넘어섭니다.</p>
+  <div class="tw">
+  <table>
+    <thead><tr><th>작업 유형</th><th class="n">건수</th><th class="n">건당 누적 입력</th><th class="n">건당 출력</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>기능 구현</td><td class="n">50</td><td class="n">2,000K</td><td class="n">40K</td><td>중간 25 + 최종 25 (≈100 API 호출/건)</td></tr>
+      <tr><td>버그 수정·리팩터링</td><td class="n">200</td><td class="n">400K</td><td class="n">10K</td><td>≈25 API 호출/건</td></tr>
+      <tr><td>수업자료 · LLM Wiki 정리</td><td class="n">40</td><td class="n">300K</td><td class="n">45K</td><td>회차당 초안 + 2회 개정</td></tr>
+      <tr><td>질의응답 · 디버깅 챗</td><td class="n">950</td><td class="n">8K</td><td class="n">1.5K</td><td>주 50회 × 19주</td></tr>
+      <tr><td>이미지 생성</td><td class="n">100</td><td class="n">—</td><td class="n">—</td><td>UI 목업 · 썸네일 · 발표 자료</td></tr>
+      <tr><td>GCP 인프라</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td>Firebase · Cloud Run · BigQuery · Storage</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="sec">03</span>세 가지 소진 시나리오</h2>
+  <p class="sub">같은 워크로드라도 모델 선택과 캐싱 습관에 따라 7배 차이가 납니다.</p>
+
+  <div class="chart">
+    <p class="ct">예산 100만원 대비 소진액</p>
+    <p class="cs">부가세 10% 포함 · 회색 = API 단독 / 청록 = 개인 AI Pro 병행</p>
+    <div class="plot">
+      <div class="budgetline" style="left:52.6%"><b>100만원</b></div>
+
+      <div class="grp">
+        <div class="lb">A 절약형<em>Flash + 캐싱</em></div>
+        <div class="bars">
+          <div class="bar"><span class="tag">API</span><span class="track"><span class="fill api" style="width:12.9%"></span></span><span class="val">244,400원</span></div>
+          <div class="bar"><span class="tag">+ Pro</span><span class="track"><span class="fill sub" style="width:11.6%"></span></span><span class="val">221,100원</span></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <div class="lb">B 표준형<em>Pro/Flash 혼합</em></div>
+        <div class="bars">
+          <div class="bar"><span class="tag">API</span><span class="track"><span class="fill api" style="width:42.6%"></span></span><span class="val">809,000원</span></div>
+          <div class="bar"><span class="tag">+ Pro</span><span class="track"><span class="fill sub" style="width:20.1%"></span></span><span class="val">382,800원</span></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <div class="lb">C 과다형<em>Pro 상시·병렬</em></div>
+        <div class="bars">
+          <div class="bar"><span class="tag">API</span><span class="track"><span class="fill api over" style="width:95.2%"></span></span><span class="val">1,808,600원</span></div>
+          <div class="bar"><span class="tag">+ Pro</span><span class="track"><span class="fill sub" style="width:35.4%"></span></span><span class="val">673,100원</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--muted)"></i>API 단독 결제</span>
+      <span><i style="background:var(--accent)"></i>AI Pro 구독 병행 (구독료 포함, 크레딧 차감 후)</span>
+      <span><i style="background:var(--danger)"></i>예산 초과분</span>
+    </div>
+  </div>
+
+  <h3>시나리오별 항목 내역 (부가세 포함, 원)</h3>
+  <div class="tw">
+  <table>
+    <thead><tr><th>항목</th><th class="n">A 절약형</th><th class="n">B 표준형</th><th class="n">C 과다형</th></tr></thead>
+    <tbody>
+      <tr><td>코드생성 — 기능 구현</td><td class="n">47,300</td><td class="n">332,600</td><td class="n">647,500</td></tr>
+      <tr><td>코드생성 — 버그 수정</td><td class="n">40,100</td><td class="n">273,200</td><td class="n">793,000</td></tr>
+      <tr><td>수업자료 · LLM Wiki</td><td class="n">14,400</td><td class="n">23,400</td><td class="n">67,700</td></tr>
+      <tr><td>질의응답 · 디버깅</td><td class="n">16,400</td><td class="n">16,400</td><td class="n">48,000</td></tr>
+      <tr><td>이미지 생성</td><td class="n">7,400</td><td class="n">14,900</td><td class="n">29,700</td></tr>
+      <tr><td>GCP 인프라</td><td class="n">118,800</td><td class="n">148,500</td><td class="n">222,800</td></tr>
+      <tr class="total"><td>합계</td><td class="n">244,400</td><td class="n">809,000</td><td class="n">1,808,600</td></tr>
+      <tr class="total"><td>예산 잔액</td><td class="n">+755,600</td><td class="n">+191,000</td><td class="n">−808,600</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="cap">A는 Flash 중심 + 75% 컨텍스트 캐시 적중, B는 Pro/Flash 혼합에 캐싱 미흡, C는 Pro 상시 사용 + 200K 초과 컨텍스트(단가 2배 구간) + 병렬 에이전트 + 버그 수정 300건 기준입니다.</p>
+
+  <div class="note bad">
+    <span class="nt">주의</span>
+    <p><strong>B 표준형이 “안전”해 보이지만 실제로는 아닙니다.</strong> 잔액 19만원은 4.5개월치 여유가 아니라 <strong>약 3주치</strong>입니다. 최종 프로젝트 막판에 에이전트를 한 번만 폭주시키면 그대로 초과합니다. 그리고 예산이 바닥나는 시점은 하필 <strong>1월 발표 직전</strong>입니다.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="sec">04</span>개인 AI Pro가 실제로 흡수하는 것</h2>
+  <p class="sub">월 29,000원으로 API 과금 없이 쓰게 되는 도구들.</p>
+  <p>핵심 원리는 단순합니다. <strong>Google AI Pro는 토큰당 과금이 아니라 정액 구독 한도</strong>입니다. 개발 도구를 통해 흘러가는 트래픽은 구독 한도에서 차감되고, GCP 청구서에는 한 푼도 올라가지 않습니다.</p>
+
+  <div class="cov">
+    <div class="covc"><div class="tool">ANTIGRAVITY</div><h4>에이전트 개발 환경</h4><p>Gemini 3 Pro 기반 에이전트 관리 환경을 구독 한도로 사용. 무료 등급이 주 단위 한도인 반면, Pro는 <strong>5시간마다 리셋</strong>되는 상위 한도를 받습니다.</p></div>
+    <div class="covc"><div class="tool">GEMINI CLI</div><h4>터미널 에이전트</h4><p>무료 Code Assist 1,000회/일 → <strong>AI Pro 1,500회/일</strong>. API 키 방식(무료 250회/일)과 달리 토큰 과금이 없습니다.</p></div>
+    <div class="covc"><div class="tool">CODE ASSIST</div><h4>IDE 코드 어시스트</h4><p>VS Code·JetBrains·Android Studio에서 상향된 할당량. 자동완성과 인라인 편집은 API 예산과 무관합니다.</p></div>
+    <div class="covc"><div class="tool">JULES</div><h4>비동기 코딩 에이전트</h4><p>저장소에 붙여 백그라운드로 작업을 맡기는 에이전트. 리팩터링·테스트 보강처럼 시간이 오래 걸리는 일에 적합합니다.</p></div>
+    <div class="covc"><div class="tool">GEMINI NOTEBOOK</div><h4>LLM Wiki 자료 정리</h4><p><strong>최대 300개 소스</strong>를 얹어 강의 자료를 정리·질의. 위키를 만드는 과정에서 발생하는 대용량 입력 토큰이 전부 구독 쪽으로 넘어갑니다.</p></div>
+    <div class="covc"><div class="tool">DEEP RESEARCH</div><h4>심층 리서치</h4><p>기술 조사 리포트 1건에 API로는 수십만 토큰이 드는 작업을 구독 한도로 대체합니다.</p></div>
+    <div class="covc"><div class="tool">GOOGLE FLOW</div><h4>이미지 · 동영상</h4><p>월 1,000 크레딧. 발표용 목업과 썸네일을 Nano Banana API 대신 여기서 뽑습니다.</p></div>
+    <div class="covc"><div class="tool">CLOUD CREDIT</div><h4>월 $10 크레딧</h4><p>구독에 <strong>매월 $10 상당 Google Cloud 크레딧</strong>이 포함됩니다. 5개월이면 $50 ≈ 67,500원. Google Developer Program에서 직접 활성화해야 하며, <strong>$300 신규 크레딧과 달리 AI Studio Gemini API에도 쓸 수 있습니다.</strong></p></div>
+  </div>
+
+  <div class="note good">
+    <span class="nt">회수 구조</span>
+    <p>구독료 <span class="num">145,000원</span> − Cloud 크레딧 <span class="num">67,500원</span> = <strong>실질 순부담 77,500원.</strong> 구독료의 46%가 GCP 예산으로 되돌아오므로, 수강생 입장에서는 <strong>예산의 7.8%를 떼어 나머지 92%를 지키는</strong> 구조입니다.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="sec">05</span>절감액이 어디서 나오는가</h2>
+  <p class="sub">B 표준형 기준, 항목별 API 비용과 구독 도입 후 잔여 비용.</p>
+
+  <div class="chart">
+    <p class="ct">항목별 절감 효과 · 부가세 포함</p>
+    <p class="cs">위 회색 막대 = API 단독 결제 / 아래 청록 막대 = AI Pro 병행 후 잔여 API 비용</p>
+
+    <div class="srow">
+      <div class="sl">기능 구현</div>
+      <div class="sbars"><div class="sb a" style="width:100%"></div><div class="sb b" style="width:25%"></div></div>
+      <div class="sv">−249,500원</div>
+    </div>
+    <div class="srow">
+      <div class="sl">버그 수정</div>
+      <div class="sbars"><div class="sb a" style="width:82.1%"></div><div class="sb b" style="width:20.5%"></div></div>
+      <div class="sv">−204,900원</div>
+    </div>
+    <div class="srow">
+      <div class="sl">수업자료 · Wiki</div>
+      <div class="sbars"><div class="sb a" style="width:7.0%"></div><div class="sb b" style="width:0.7%"></div></div>
+      <div class="sv">−21,100원</div>
+    </div>
+    <div class="srow">
+      <div class="sl">질의응답 · 디버깅</div>
+      <div class="sbars"><div class="sb a" style="width:4.9%"></div><div class="sb b" style="width:0%"></div></div>
+      <div class="sv">−16,400원</div>
+    </div>
+    <div class="srow">
+      <div class="sl">이미지 생성</div>
+      <div class="sbars"><div class="sb a" style="width:4.5%"></div><div class="sb b" style="width:0.9%"></div></div>
+      <div class="sv">−11,900원</div>
+    </div>
+    <div class="srow">
+      <div class="sl">GCP 인프라</div>
+      <div class="sbars"><div class="sb a" style="width:44.6%"></div><div class="sb b" style="width:44.6%"></div></div>
+      <div class="sv zero">0원</div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--muted);opacity:.7"></i>API 단독</span>
+      <span><i style="background:var(--accent)"></i>구독 병행 후 잔여</span>
+      <span>막대 길이 기준 = 332,600원 (기능 구현)</span>
+    </div>
+  </div>
+
+  <h3>투입 대비 회수</h3>
+  <div class="tw">
+  <table>
+    <thead><tr><th>시나리오</th><th class="n">API 단독</th><th class="n">절감액</th><th class="n">구독 후 총비용</th><th class="n">예산 잔액</th><th class="n">ROI</th></tr></thead>
+    <tbody>
+      <tr><td>A 절약형</td><td class="n">244,400</td><td class="n">100,800</td><td class="n">221,100</td><td class="n">+778,900</td><td class="n">1.3배</td></tr>
+      <tr><td>B 표준형</td><td class="n">809,000</td><td class="n">503,700</td><td class="n">382,800</td><td class="n">+617,200</td><td class="n">6.5배</td></tr>
+      <tr><td>C 과다형</td><td class="n">1,808,600</td><td class="n">1,213,000</td><td class="n">673,100</td><td class="n">+326,900</td><td class="n">15.7배</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="cap">구독 흡수율 가정 — 코드 생성 75%(한도 초과분과 배포 서비스 런타임 호출은 API 잔류), 수업자료 90%, 질의응답 100%, 이미지 80%, 인프라 0%. ROI = 절감액 ÷ 실질 순부담 77,500원.</p>
+
+  <div class="note good">
+    <span class="nt">핵심</span>
+    <p><strong>구독을 넣으면 세 시나리오 모두 예산 안에 들어옵니다.</strong> 특히 가장 위험한 C 과다형에서 180만원 → 67만원으로 떨어져, 예산 초과가 예산 33만원 여유로 뒤집힙니다. 사고를 가장 많이 치는 학생일수록 구독의 효과가 큽니다.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="sec">06</span><span>구독이 대신해주지 <em class="neg">않는</em> 것</span></h2>
+  <p class="sub">여기를 착각하면 예산이 그대로 샙니다.</p>
+  <div class="note warn">
+    <span class="nt">경계선</span>
+    <p><strong>개발 시간의 비용은 구독으로, 서비스 실행의 비용은 API 예산으로.</strong> 이 한 문장이 전부입니다.</p>
+    <p>학생이 에디터 앞에서 코드를 만들어내는 동안 발생하는 토큰은 구독이 먹습니다. 하지만 <strong>완성된 서비스가 배포된 뒤 사용자 요청을 받아 호출하는 Gemini API는 반드시 유료 API 키를 통해야 하고, 100% 예산에서 차감</strong>됩니다. 최종 프로젝트가 “LLM을 부르는 웹 서비스”라면 데모·부하 테스트 비용도 여기 포함됩니다.</p>
+  </div>
+  <ul class="plain">
+    <li><strong>Antigravity·CLI 한도는 공식 수치가 비공개</strong>이며 개인 사용 기준입니다. 에이전트를 병렬로 여러 개 돌리면 5시간 창을 금방 소진합니다. 순차 작업 위주로 쓰도록 지도해야 합니다.</li>
+    <li><strong>Firebase·Cloud Run·BigQuery·Storage는 구독과 무관</strong>합니다. 인프라 12~22만원은 어떤 시나리오에서도 예산에서 나갑니다.</li>
+    <li><strong>구독 계정과 GCP 결제 계정은 별개</strong>입니다. 학생이 개인 Google 계정으로 구독하고, 프로젝트는 강의용 결제 계정에 붙는 구조를 미리 정리해두어야 합니다.</li>
+    <li><strong>2027년 1월 1일 Flash 단가 2배 인상</strong>은 구독으로 막을 수 없는 API 쪽 이슈입니다. 대량 배치 작업은 12월 안에 끝내는 편이 낫습니다.</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="sec">07</span>더 싸게 가는 길: 무료 혜택과 교육 크레딧</h2>
+  <p class="sub">대학생 요금제, $300 무료 체험, 그리고 강사가 직접 신청하는 교육 크레딧.</p>
+  <p>만 18세 이상 대학생은 <strong>Google AI Plus를 12개월 무료</strong>로 받을 수 있습니다(신청 마감 2026년 12월 31일, 결제수단 등록 필요, 무료 기간 종료 후 월 7,500원 자동 청구). 사용량 한도는 무료 대비 2배, 저장용량 400GB입니다.</p>
+  <div class="note warn">
+    <span class="nt">단, 중요한 차이</span>
+    <p><strong>Antigravity의 상향 한도는 AI Pro 항목이지 Plus 항목이 아닙니다.</strong> 이 수업이 Antigravity 기반 바이브 코딩이라면 Plus 무료 혜택만으로는 부족합니다. 현실적인 조합은 이렇습니다.</p>
+  </div>
+  <ul class="plain">
+    <li><strong>대학생 수강생</strong> — Plus 12개월 무료를 먼저 신청해 Gemini 앱·자료 정리 트래픽을 덜어내고, Antigravity를 본격적으로 쓰는 프로젝트 구간(11월~1월)만 Pro로 3개월 결제 → 구독비 <span class="num">87,000원</span>, Cloud 크레딧 <span class="num">$30</span> 회수.</li>
+    <li><strong>고등학생 수강생</strong> — 대학생 혜택 대상이 아닙니다. Pro 5개월 정가 결제를 기본으로 잡고, 결제수단이 없는 학생은 기관 계정 또는 강사 계정 공유 방식을 미리 정해야 합니다.</li>
+    <li><strong>GCP 신규 계정 $300 무료 크레딧(90일)</strong> — 9월에 만들면 12월 초 만료입니다. 단, <strong>이 크레딧으로는 AI Studio용 Gemini API를 결제할 수 없습니다.</strong> 반드시 Vertex AI 경로로 붙여야 하며, 방법은 08절에 정리했습니다.</li>
+  </ul>
+
+  <h3>학교 계정으로도 $300을 받을 수 있나</h3>
+  <p>공식 자격 요건에 <strong>“교육용 계정 제외” 조항은 없습니다.</strong> 조건은 두 가지뿐입니다 — ① Google Cloud·Maps Platform·Firebase의 유료 사용자였던 적이 없을 것, ② 이전에 무료 체험에 가입한 적이 없을 것. 크레딧은 <strong>조직 단위가 아니라 사용자 단위</strong>라서, 같은 학교에서 여러 명이 각각 받을 수 있고 개인 신용카드로 신청해도 됩니다.</p>
+  <p>막히는 지점은 자격이 아니라 <em>운영</em> 쪽입니다.</p>
+  <ul class="plain">
+    <li><strong>관리자가 Google Cloud를 꺼두었을 수 있습니다.</strong> 학교 Workspace 관리 콘솔에서 해당 서비스가 OFF면 로그인 단계에서 막힙니다. 교육용 계정에서 가장 흔한 실패 원인이므로, 수업 전에 학교 IT 담당자에게 확인하세요.</li>
+    <li><strong>신용카드가 본인 확인용으로 필요합니다.</strong> 청구는 없지만 등록은 해야 합니다. 미성년 수강생은 여기서 걸립니다.</li>
+    <li><strong>1인 1회입니다.</strong> 개인 계정으로 이미 받은 학생은 학교 계정으로 또 받을 수 없습니다.</li>
+    <li><strong>90일 후 소멸하고 이월되지 않습니다.</strong> 수업 시작에 맞춰 일괄 개설해야 낭비가 없습니다.</li>
+  </ul>
+
+  <h3>교육기관이라면 더 나은 경로: Cloud for Education 크레딧</h3>
+  <p>강사가 직접 신청하는 별도 프로그램이 있습니다. 금액은 작지만 <strong>수강생에게 신용카드를 요구하지 않는다</strong>는 점에서 강의 운영에는 오히려 실용적입니다.</p>
+  <div class="tw">
+  <table>
+    <thead><tr><th>구분</th><th>$300 무료 체험</th><th>Cloud for Education 크레딧</th></tr></thead>
+    <tbody>
+      <tr><td>금액</td><td>$300 (1인 1회)</td><td>학생 1인 최대 $50 · 교원 $100</td></tr>
+      <tr><td>신청 주체</td><td>학생 본인</td><td><strong>강사가 신청 → 쿠폰 URL 배포</strong></td></tr>
+      <tr><td>신용카드</td><td>필수</td><td><strong>불필요</strong></td></tr>
+      <tr><td>유효 기간</td><td>90일</td><td>수령 후 12개월</td></tr>
+      <tr><td>수령 기한</td><td>—</td><td>강좌 시작일로부터 16주 이내</td></tr>
+      <tr><td>결제 계정</td><td>학생 개인</td><td><strong>강좌별 분리 계정</strong></td></tr>
+      <tr><td>소진 후</td><td>추가 불가</td><td>강사가 추가 쿠폰 요청 가능</td></tr>
+      <tr><td>심사</td><td>즉시</td><td>최대 15영업일</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="cap">대한민국은 지원 대상 140여 개국에 포함됩니다. 다만 <strong>인가받은 비영리 학위수여 기관</strong>이 조건이라, 영리 교육기관과 비학위 과정은 대상이 아닙니다. 대학 부설 평생교육원은 소속 대학 명의로 신청 가능한지 확인이 필요하고, 고등학교 과정은 사실상 대상 밖입니다. 문의는 <span class="num">CloudEduGrants@google.com</span>.</p>
+
+  <div class="note good">
+    <span class="nt">권장 조합</span>
+    <p><strong>교육 크레딧을 지금 신청해 두고(심사 15영업일), 그와 별개로 성인 수강생은 각자 $300 체험을 개설</strong>하는 이중 구성이 가장 안전합니다. 교육 크레딧은 강좌별 결제 계정으로 분리되어 예산 통제가 쉽고, 소진 시 강사가 추가분을 요청할 수 있어 1월 발표 직전에 예산이 마르는 상황을 막아줍니다. 두 크레딧 모두 <strong>Vertex AI 경로로만 Gemini에 쓸 수 있다는 제약은 동일</strong>합니다.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="sec">08</span><span>$300 크레딧은 <em class="neg">AI Studio 키로는</em> 못 씁니다</span></h2>
+  <p class="sub">같은 Gemini 모델이라도 어느 문으로 들어가느냐에 따라 크레딧 적용이 갈립니다.</p>
+  <p>Google Cloud 공식 문서에 명시된 문장입니다 — <strong>“$300 크레딧은 AI Studio의 Gemini API 비용을 결제할 수 없습니다.”</strong> AI Studio에서 발급한 API 키(<span class="num">generativelanguage.googleapis.com</span>)로 호출하면, 결제 계정에 $300이 남아 있어도 그 금액은 건드리지 않고 <strong>카드에 그대로 청구</strong>됩니다. 실제로 2026년 3월 이후 개발자 포럼에는 같은 청구서에서 Vertex AI 요금은 크레딧으로 차감되고 Gemini API 요금만 카드로 결제된 사례가 반복 보고되고 있습니다.</p>
+
+  <div class="tw">
+  <table>
+    <thead><tr><th>경로</th><th>엔드포인트</th><th>인증</th><th class="n">$300 크레딧</th><th class="n">AI Pro $10 크레딧</th></tr></thead>
+    <tbody>
+      <tr><td><span class="mod">AI Studio Gemini API</span></td><td class="num">generativelanguage<wbr>.googleapis.com</td><td>API 키</td><td class="n">✕ 적용 안 됨</td><td class="n">○ 적용</td></tr>
+      <tr><td><span class="mod">Vertex AI</span> (Gemini 모델)</td><td class="num">aiplatform<wbr>.googleapis.com</td><td>ADC · 서비스 계정</td><td class="n">○ 적용</td><td class="n">○ 적용</td></tr>
+      <tr><td><span class="mod">Vertex AI</span> 파트너 모델(MaaS)</td><td class="num">aiplatform<wbr>.googleapis.com</td><td>ADC · 서비스 계정</td><td class="n">✕ 적용 안 됨</td><td class="n">—</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="cap">Vertex AI라도 Claude·Llama 같은 서드파티 “model as a service” 모델은 $300 크레딧 대상에서 제외됩니다. 무료 체험 기간에는 GPU·마켓플레이스·할당량 상향·Windows Server·VMware Engine도 사용할 수 없습니다.</p>
+
+  <div class="note good">
+    <span class="nt">답</span>
+    <p><strong>네, 가능합니다 — 단 Vertex AI 경로로 붙였을 때만입니다.</strong> Gemini 모델 자체는 동일하고 토큰 단가도 사실상 같습니다. 바뀌는 것은 인증 방식(API 키 → 애플리케이션 기본 사용자 인증 정보)과 엔드포인트뿐이며, 컨텍스트 캐싱(입력 75% 절감)과 Batch(50% 할인)도 Vertex에서 그대로 쓸 수 있습니다.</p>
+  </div>
+
+  <h3>“GCP에서 키를 발급하면 달라지나요?”</h3>
+  <p>달라지지 않습니다. <strong>크레딧 적용을 가르는 것은 키를 만든 위치가 아니라 호출하는 엔드포인트</strong>입니다. Cloud 콘솔의 사용자 인증 정보 화면에서 만든 키든 AI Studio에서 만든 키든, <span class="num">generativelanguage.googleapis.com</span>을 부르는 순간 AI Studio Gemini API로 과금되고 $300 크레딧은 비껴갑니다. 모든 Gemini API 키는 어차피 Cloud 프로젝트에 묶여 있고, 그 프로젝트가 결제·할당량·권한을 관리합니다.</p>
+  <p><strong>지출도 숨겨지지 않습니다.</strong> 표시 기준 역시 키 발급 위치가 아니라 <em>키가 속한 프로젝트</em>입니다. 같은 프로젝트라면 AI Studio의 <span class="num">Dashboard &gt; Usage</span>, <span class="num">Billing</span>, <span class="num">Spend</span> 페이지에 그대로 잡힙니다. 다른 프로젝트에서 만들었다면 AI Studio에서 그 프로젝트로 전환해야 보일 뿐입니다. Cloud Billing 보고서에도 함께 올라오지만 반영이 하루 이상 늦을 수 있어, 실시간에 가까운 확인은 AI Studio 쪽이 낫습니다.</p>
+
+  <div class="note bad">
+    <span class="nt">지금 당장 주의</span>
+    <p><strong>Cloud 콘솔에서 만드는 키는 “표준 키”이고, 2026년 9월부터 Gemini API가 이 요청을 거부합니다.</strong> 제한이 걸리지 않은 표준 키는 이미 차단되었습니다. AI Studio에서 만드는 새 키는 자동으로 서비스 계정에 묶인 <strong>인증(auth) 키</strong>로 생성되므로, 수강생에게는 <strong>Cloud 콘솔이 아니라 AI Studio에서 키를 발급받게</strong> 안내해야 합니다. 학기 중에 전원이 401을 맞는 사고를 막는 가장 간단한 조치입니다.</p>
+  </div>
+
+  <div class="note warn">
+    <span class="nt">신규 계정 절차 변경</span>
+    <p>2026년 3월 23일부터 <strong>Gemini API 유료 전환에는 최소 $5의 선불(Prepay) 충전이 필요</strong>합니다. 그리고 AI Studio <span class="num">Spend</span> 페이지에서 <strong>프로젝트별 지출 상한</strong>을 걸 수 있습니다 — 상한에 닿으면 해당 결제 계정에 연결된 모든 프로젝트의 서비스가 일시 중지되므로, 수강생 계정 폭주를 막는 가장 확실한 안전장치입니다. 참고로 AI Pro의 월 $10 크레딧처럼 Gemini API에 사용 가능한 Cloud 크레딧은 <strong>선불 잔액보다 먼저 소진</strong>됩니다.</p>
+  </div>
+
+  <h3>수강생 세팅 절차</h3>
+  <ol class="steps">
+    <li><b>프로젝트를 만들고 Vertex AI API를 켠다</b><span><span class="num">gcloud projects create</span> → <span class="num">gcloud config set project</span> → <span class="num">gcloud services enable aiplatform.googleapis.com</span>. 결제 계정에 $300 크레딧이 붙어 있는지 콘솔에서 확인합니다.</span></li>
+    <li><b>API 키 대신 ADC로 로그인한다</b><span><span class="num">gcloud auth application-default login</span>. 그다음 <span class="num">unset GEMINI_API_KEY</span>, <span class="num">unset GOOGLE_API_KEY</span> — 키가 남아 있으면 SDK가 조용히 AI Studio 경로로 되돌아가 크레딧을 비껴갑니다. <strong>여기가 가장 많이 틀리는 지점입니다.</strong></span></li>
+    <li><b>환경변수 3줄을 고정한다</b><span><span class="num">GOOGLE_GENAI_USE_VERTEXAI=true</span> · <span class="num">GOOGLE_CLOUD_PROJECT=&lt;프로젝트 ID&gt;</span> · <span class="num">GOOGLE_CLOUD_LOCATION=global</span>. <span class="num">global</span>로 두면 리전별 모델 가용성 문제를 피할 수 있습니다.</span></li>
+    <li><b>SDK는 그대로, 초기화만 바꾼다</b><span><span class="num">@google/genai</span> · <span class="num">google-genai</span> 통합 SDK에서 <span class="num">vertexai: true</span>와 project·location만 넘기면 됩니다. 모델명과 호출 코드는 동일합니다.</span></li>
+    <li><b>Gemini CLI도 Vertex 모드로 돌린다</b><span>Gemini CLI는 ① Google 로그인(구독 한도) ② API 키 ③ Vertex AI 세 가지 인증을 지원합니다. 위 환경변수를 설정하면 ③번으로 동작해 크레딧에서 차감됩니다. 다만 <strong>구독 한도로 쓰는 게 더 싸므로, 평소엔 ①번, 크레딧을 태울 때만 ③번</strong>으로 전환하는 편이 낫습니다.</span></li>
+    <li><b>배포 서비스는 서비스 계정으로</b><span>Cloud Run·Vercel에 올릴 때는 <span class="num">roles/aiplatform.user</span> 권한의 서비스 계정 키를 <span class="num">GOOGLE_APPLICATION_CREDENTIALS</span>로 넘깁니다. 코드는 바꿀 필요가 없습니다.</span></li>
+  </ol>
+
+  <div class="note warn">
+    <span class="nt">타이밍</span>
+    <p>$300 크레딧은 <strong>90일 정액 만료</strong>입니다. 9월 중순에 계정을 만들면 <strong>12월 중순에 소멸</strong>하고, 남은 금액은 이월되지 않습니다. 중간 프로젝트(9~11월) 구간을 이 크레딧으로 태우고, 100만원 예산은 최종 프로젝트와 1월 발표 준비에 남겨두는 배분이 맞습니다. 체험 종료 후에는 30일 유예 기간 안에 유료 계정으로 전환해야 리소스가 살아 있습니다.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="sec">09</span>강의 운영 체크리스트</h2>
+  <p class="sub">첫 주에 이것만 세팅해두면 C 과다형은 발생하지 않습니다.</p>
+  <ol class="steps">
+    <li><b>키는 AI Studio에서만 발급하게 한다</b><span>Cloud 콘솔에서 만든 표준 키는 2026년 9월부터 거부됩니다. AI Studio 발급 키는 자동으로 인증(auth) 키이므로, 수강생 안내 문구를 발급 경로까지 못박아 둡니다.</span></li>
+    <li><b>AI Studio Spend 페이지에 프로젝트별 상한을 건다</b><span>Cloud Billing 예산 알림은 사후 통보일 뿐이지만, AI Studio의 지출 상한은 도달 시 서비스를 실제로 멈춥니다. 수강생 1인당 상한을 걸어두면 C 과다형 사고 자체가 발생하지 않습니다.</span></li>
+    <li><b>첫 실습 전에 Vertex AI 경로로 통일한다</b><span>수강생 전원이 <span class="num">GOOGLE_GENAI_USE_VERTEXAI=true</span> 환경에서 시작하도록 초기 세팅 스크립트를 배포합니다. AI Studio 키로 먼저 익숙해지면 $300 크레딧이 통째로 사장됩니다.</span></li>
+    <li><b>예산 알림과 할당량 상한을 먼저 건다</b><span>Cloud Billing 예산 알림을 50 / 80 / 100%에 걸고, Gemini API 할당량에 일일 상한을 지정합니다. Tier 1은 10분당 $10까지 쓸 수 있으므로, 상한이 없으면 하룻밤 사이 예산이 사라질 수 있습니다.</span></li>
+    <li><b>모델 라우팅 규칙을 수업 규칙으로 못박는다</b><span>기본은 Flash-Lite / Flash. 아키텍처 설계와 막힌 버그만 Pro. “일단 제일 좋은 모델” 습관이 B와 C를 가르는 가장 큰 변수입니다.</span></li>
+    <li><b>컨텍스트를 200K 아래로 유지시킨다</b><span>Pro는 200K를 넘는 순간 입력 $2 → $4, 출력 $12 → $18로 뜁니다. 세션을 자주 끊고, 대화 이력 대신 AGENTS.md 같은 규칙 파일로 맥락을 전달하도록 훈련합니다.</span></li>
+    <li><b>컨텍스트 캐싱을 실습 과제로 넣는다</b><span>캐시 적중률 75%면 Pro 입력 단가가 실질 $0.65까지 떨어집니다. A 절약형과 B 표준형의 격차 대부분이 여기서 나옵니다.</span></li>
+    <li><b>일괄 처리는 Batch API로</b><span>수업자료 일괄 정리, 임베딩 생성처럼 즉시성이 필요 없는 작업은 Batch로 돌려 50% 할인을 받습니다.</span></li>
+    <li><b>검색 그라운딩은 월 5,000회 안에서</b><span>초과하면 1,000회당 $14입니다. 위키 구축처럼 검색을 많이 부르는 작업은 월별로 나눠 배치합니다.</span></li>
+    <li><b>12월 말까지 Flash 대량 작업을 끝낸다</b><span>2027년 1월 1일부터 Flash 단가가 2배입니다. 자료 일괄 정리·대량 요약은 12월 안에 마칩니다.</span></li>
+    <li><b>Cloud for Education 크레딧을 이번 주에 신청한다</b><span>심사에 최대 15영업일이 걸리고, 쿠폰은 강좌 시작일로부터 16주 이내에 수령해야 합니다. 지금 넣어야 최종 프로젝트 구간에 맞춰 도착합니다.</span></li>
+    <li><b>구독 도입 시점을 프로젝트 시작에 맞춘다</b><span>지금 가입하면 5개월 145,000원, 11월부터면 3개월 87,000원입니다. 중간 프로젝트는 GCP $300 크레딧으로 덮고, 구독은 최종 프로젝트 구간에 집중시키는 편이 현금 효율이 좋습니다.</span></li>
+  </ol>
+</section>
+
+<footer>
+  <h3>출처</h3>
+  <ol>
+    <li><a href="https://ai.google.dev/gemini-api/docs/pricing">Gemini API Pricing — Google AI for Developers</a> (모델별 토큰 단가, 캐싱·배치·그라운딩 요금, Flash 프로모션 종료일)</li>
+    <li><a href="https://ai.google.dev/gemini-api/docs/rate-limits">Gemini API Rate Limits — Google AI for Developers</a> (Tier 1 지출 한도)</li>
+    <li><a href="https://support.google.com/googleone/answer/14534406?hl=ko">Google AI Pro 혜택 사용하기 — Google One 고객센터</a> (Antigravity·Jules·Code Assist·Notebook 300 소스·월 $10 Cloud 크레딧)</li>
+    <li><a href="https://gemini.google/kr/subscriptions/?hl=ko">Google AI Pro 및 Ultra 요금제 — gemini.google</a> (한국 요금, 한도 배수, Flow 크레딧)</li>
+    <li><a href="https://gemini.google/kr/students/?hl=ko">Gemini for Students — gemini.google</a> (대학생 AI Plus 12개월 무료, 2026.12.31 마감)</li>
+    <li><a href="https://geminicli.com/docs/resources/quota-and-pricing/">Gemini CLI: Quotas and pricing</a> (무료 1,000 / AI Pro 1,500 / Ultra 2,000 요청·일, API 키 250회·일)</li>
+    <li><a href="https://blog.google/feed/new-antigravity-rate-limits-pro-ultra-subsribers/">Antigravity rate limits for Pro/Ultra subscribers — Google Blog</a> (5시간 리셋, 무료는 주 단위 한도)</li>
+    <li><a href="https://www.morphllm.com/ai-coding-costs">AI Coding Costs (2026) — morphllm</a> (에이전트 작업당 누적 토큰 실측: 기능 2M 입력·40K 출력, 버그 400K·10K)</li>
+    <li><a href="https://docs.cloud.google.com/free">Free Google Cloud features and trial offer</a> ("$300 크레딧은 AI Studio의 Gemini API 비용을 결제할 수 없음", 90일·30일 유예, 체험 중 제외 항목)</li>
+    <li><a href="https://discuss.ai.google.dev/t/free-trial-credits-not-applied-to-gemini-api-usage-via-ai-studio/135129">Free Trial Credits Not Applied to Gemini API Usage via AI Studio — Google AI Developers Forum</a> (Vertex는 차감, Gemini API는 카드 청구된 실제 사례)</li>
+    <li><a href="https://ai.google.dev/gemini-api/docs/billing">Billing — Gemini API 문서</a> ("Welcome credit·free trial credit은 Gemini API/AI Studio에 사용 불가", 최소 $5 선불, AI Studio Usage·Billing·Spend 페이지, 프로젝트별 지출 상한)</li>
+    <li><a href="https://ai.google.dev/gemini-api/docs/api-key">Using Gemini API keys — Gemini API 문서</a> (모든 키는 Cloud 프로젝트에 종속, auth 키 vs 표준 키, 2026년 9월 표준 키 거부)</li>
+    <li><a href="https://cloud.google.com/vertex-ai/generative-ai/pricing">Vertex AI 생성형 AI 가격</a> (모델별 단가, 컨텍스트 캐싱 입력 75% 절감, Batch 50% 할인)</li>
+    <li><a href="https://geminicli.com/docs/get-started/authentication/">Gemini CLI authentication setup</a> (Google 로그인 · API 키 · Vertex AI 3가지 인증)</li>
+    <li><a href="https://blog.google/innovation-and-ai/technology/developers-tools/gdp-premium-ai-pro-ultra/">New developer tools for Google AI Pro and Ultra subscribers — Google Blog</a> (월 $10/$100 Cloud 크레딧, Developer Program에서 활성화, AI Studio·Vertex 모두 사용 가능)</li>
+    <li><a href="https://cloud.google.com/signup-faqs">Google Cloud Free Trial FAQs</a> (자격 요건 2가지, 사용자 단위 지급, 개인 신용카드 가능)</li>
+    <li><a href="https://cloud.google.com/edu/faculty">Google Cloud for Faculty</a> (학생 1인 최대 $50, 교원 $100)</li>
+    <li><a href="https://support.google.com/google-cloud-higher-ed/answer/10322557?hl=en">Eligibility for Faculty — Cloud for Education Help</a> (인가·비영리·학위수여 기관, 한국 포함 140여 개국)</li>
+    <li><a href="https://docs.cloud.google.com/billing/docs/how-to/edu-grants">Get and redeem education credits — Cloud Billing</a> (쿠폰 배포 절차, 강좌별 결제 계정, 수령 후 12개월)</li>
+    <li><a href="https://support.google.com/google-cloud-higher-ed/answer/10324552?hl=en">Application process — Cloud for Education Help</a> (심사 최대 15영업일, CloudEduGrants 문의처)</li>
+    <li><a href="https://cloud.google.com/billing/docs/resources/vat-overview?hl=ko">Taxes in your country — Google Cloud Billing</a> (한국 부가세 처리)</li>
+    <li><a href="https://view.asiae.co.kr/article/2026090915324235252">원·달러 환율 1,336.1원 (2026.09.09) — 아시아경제</a></li>
+  </ol>
+  <p class="disc">모든 금액은 2026년 9월 9일 단가·환율 기준 추정치이며, 실제 청구액은 학생별 사용 패턴에 따라 달라집니다. 워크로드 가정(작업 건수·건당 토큰)은 위 8번 실측 자료를 이 강의의 프로젝트 규모에 맞춰 조정한 값으로, 수업 2~3주차의 실제 사용량을 확인한 뒤 재보정하는 것을 권합니다. Antigravity와 Gemini CLI의 구체적 한도는 Google이 공식 수치를 공개하지 않으므로, 구독 흡수율 75%는 보수적 가정입니다.</p>
+</footer>
+
+</div>
