@@ -1,4 +1,4 @@
-﻿/* YouTube Dark Theme & Modern Glassmorphism Styling */
+/* YouTube Dark Theme & Modern Glassmorphism Styling */
 :root {
   --yt-bg: #0f0f0f;
   --yt-surface: #1f1f1f;
@@ -227,63 +227,52 @@ body {
 }
 
 /* 첨부 이미지 스타일: 영상 위 오버레이 빠른 검색창 */
-.video-overlay-search {
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  max-width: 580px;
-  background: rgba(20, 20, 25, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
-  border-radius: 40px;
+/* 내용 검색 탭 상단 검색창 */
+.search-tab-header {
+  background-color: #242424;
+  border: 1px solid var(--yt-border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.side-search-box {
   display: flex;
+  gap: 8px;
   align-items: center;
-  padding: 6px 18px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  z-index: 20;
-  transition: all 0.3s ease;
 }
 
-.video-overlay-search:hover, .video-overlay-search:focus-within {
-  background: rgba(20, 20, 25, 0.9);
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-}
-
-.overlay-input {
+.side-search-input {
   flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
+  background-color: #121212;
+  border: 1px solid var(--yt-border);
+  border-radius: 20px;
+  padding: 10px 14px;
   color: #ffffff;
-  font-size: 15px;
-  font-weight: 500;
-  padding: 6px 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
 }
 
-.overlay-input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+.side-search-input:focus {
+  border-color: var(--yt-blue);
 }
 
-.overlay-btn {
-  background: transparent;
-  border: none;
+.side-search-btn {
+  background-color: #065fd4;
   color: white;
-  font-size: 18px;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s;
+  white-space: nowrap;
+  transition: background-color 0.2s;
 }
 
-.overlay-btn:hover {
-  transform: scale(1.15);
+.side-search-btn:hover {
+  background-color: #004ecc;
 }
 
 /* 커스텀 오디오 볼륨 조절 바 */

@@ -195,14 +195,16 @@ async function startAudioTranscribe(url) {
   }
 }
 
-// 5. 영상 위 오버레이 빠른 검색창 & 사이드바 검색창
-const overlayInput = document.getElementById("overlay-search-input");
-const overlayBtn = document.getElementById("overlay-search-btn");
+// 5. 내용 검색창 (사이드바 내용 검색 탭 내부)
+const contentSearchInput = document.getElementById("content-search-input");
+const contentSearchBtn = document.getElementById("content-search-btn");
 
-overlayBtn.addEventListener("click", () => handleContentSearch(overlayInput.value));
-overlayInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") handleContentSearch(overlayInput.value);
-});
+if (contentSearchBtn && contentSearchInput) {
+  contentSearchBtn.addEventListener("click", () => handleContentSearch(contentSearchInput.value));
+  contentSearchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") handleContentSearch(contentSearchInput.value);
+  });
+}
 
 async function handleContentSearch(query) {
   if (!query || !query.trim()) {

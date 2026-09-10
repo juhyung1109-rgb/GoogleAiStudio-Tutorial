@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -52,19 +52,6 @@
           <div style="font-size: 48px;">🎬</div>
           <div style="font-size: 16px; font-weight: 500;">상단에 유튜브 링크를 입력하고 검색을 누르면 영상이 로드됩니다.</div>
         </div>
-
-        <!-- 첨부 이미지 참조: 영상 위 오버레이 빠른 검색창 -->
-        <div class="video-overlay-search">
-          <input 
-            type="text" 
-            id="overlay-search-input" 
-            class="overlay-input" 
-            placeholder="영상 특정 내용을 검색하면 해당 시간으로 이동합니다 (예: 인정전, 고종)"
-          >
-          <button id="overlay-search-btn" class="overlay-btn" title="해당 시간으로 점프">
-            🔍
-          </button>
-        </div>
       </div>
 
       <!-- 음향 크기(볼륨) 조절 바 -->
@@ -107,12 +94,25 @@
 
       <!-- 탭 1: 특정 내용 검색 결과 -->
       <div id="search-tab" class="tab-content active">
-        <div style="font-size: 13px; color: #aaa; margin-bottom: 8px;">
-          영상에서 듣고 싶은 문장이나 키워드를 검색하면 해당 시간대로 즉시 점프합니다.
+        <div class="search-tab-header">
+          <div style="font-size: 13px; color: #aaa; margin-bottom: 10px;">
+            영상에서 듣고 싶은 문장이나 키워드를 검색하면 해당 시간대로 즉시 점프합니다.
+          </div>
+          <div class="side-search-box">
+            <input 
+              type="text" 
+              id="content-search-input" 
+              class="side-search-input" 
+              placeholder="영상 내용 검색 (예: 인정전, 날씨, 고종...)"
+            >
+            <button id="content-search-btn" class="side-search-btn" title="검색 및 시간 이동">
+              🔍 검색
+            </button>
+          </div>
         </div>
         <div id="search-results-list">
           <div style="text-align: center; padding: 40px 10px; color: #777;">
-            상단 영상 위 검색창 또는 여기에서 검색어를 입력하세요.
+            위 검색창에 찾고 싶은 단어나 문장을 입력하세요.
           </div>
         </div>
       </div>
