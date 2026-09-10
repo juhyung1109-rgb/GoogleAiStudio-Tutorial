@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 유튜브 검색기 - AI YouTube Searcher</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <!-- 상단 유튜브 스타일 헤더 (마이크, 만들기, 알림 제거) -->
+  <header class="yt-header">
+    <div class="header-left">
+      <button class="menu-btn" title="메뉴">☰</button>
+      <div class="yt-logo" onclick="location.reload()">
+        <div class="yt-logo-icon">▶</div>
+        <span class="yt-logo-text">YouTube</span>
+        <span class="yt-logo-badge">KR</span>
+      </div>
+    </div>
+
+    <!-- 중앙 상단 유튜브 링크 검색창 -->
+    <div class="header-center">
+      <div class="search-box-wrapper">
+        <div class="search-input-group">
+          <input 
+            type="text" 
+            id="top-url-input" 
+            class="search-input" 
+            placeholder="유튜브 링크 주소를 입력하세요 (예: https://www.youtube.com/watch?v=...)"
+            value="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+          >
+        </div>
+        <button id="top-search-btn" class="search-btn" title="검색">
+          🔍
+        </button>
+      </div>
+    </div>
+
+    <!-- 상단 오른쪽 (마이크, 만들기, 알림 제거 완료) -->
+    <div class="header-right">
+      <div class="user-badge" title="AI Searcher Mode">AI</div>
+    </div>
+  </header>
+
+  <!-- 메인 레이아웃 (플레이어 + AI 패널) -->
+  <main class="main-layout">
+    <!-- 왼쪽: 영상 플레이어 및 컨트롤 -->
+    <section class="player-column">
+      <div class="video-player-wrapper">
+        <div id="yt-player"></div>
+        <div id="player-placeholder" class="player-placeholder">
+          <div style="font-size: 48px;">🎬</div>
+          <div style="font-size: 16px; font-weight: 500;">상단에 유튜브 링크를 입력하고 검색을 누르면 영상이 로드됩니다.</div>
+        </div>
+
+        <!-- 첨부 이미지 참조: 영상 위 오버레이 빠른 검색창 -->
+        <div class="video-overlay-search">
+          <input 
+            type="text" 
+            id="overlay-search-input" 
+            class="overlay-input" 
+            placeholder="영상 특정 내용을 검색하면 해당 시간으로 이동합니다 (예: 인정전, 고종)"
+          >
+          <button id="overlay-search-btn" class="overlay-btn" title="해당 시간으로 점프">
+            🔍
+          </button>
+        </div>
+      </div>
+
+      <!-- 음향 크기(볼륨) 조절 바 -->
+      <div class="volume-control-card">
+        <div class="volume-left">
+          <button id="volume-mute-btn" class="volume-icon-btn" title="음소거 토글">🔊</button>
+          <span>음향 크기 조절</span>
+        </div>
+        <div class="volume-slider-group">
+          <input 
+            type="range" 
+            id="volume-slider" 
+            class="volume-range" 
+            min="0" 
+            max="100" 
+            value="70"
+          >
+          <span id="volume-text" class="volume-text">70%</span>
+        </div>
+      </div>
+
+      <!-- 비디오 메타 정보 카드 -->
+      <div class="video-meta-card">
+        <h1 id="video-title" class="video-title">영상을 불러와주세요</h1>
+        <div class="video-sub-info">
+          <span id="video-uploader">채널 정보 대기 중</span>
+          <span id="status-badge" class="status-badge">대기 상태</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 오른쪽: AI 검색 & 질의응답 사이드바 -->
+    <aside class="sidebar-column">
+      <!-- 탭 내비게이션 -->
+      <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="search-tab">🔍 내용 검색</button>
+        <button class="tab-btn" data-tab="chat-tab">💬 Gemini 3.8 Flash Q&A</button>
+        <button class="tab-btn" data-tab="transcript-tab">📜 전체 대본</button>
+      </nav>
+
+      <!-- 탭 1: 특정 내용 검색 결과 -->
+      <div id="search-tab" class="tab-content active">
+        <div style="font-size: 13px; color: #aaa; margin-bottom: 8px;">
+          영상에서 듣고 싶은 문장이나 키워드를 검색하면 해당 시간대로 즉시 점프합니다.
+        </div>
+        <div id="search-results-list">
+          <div style="text-align: center; padding: 40px 10px; color: #777;">
+            상단 영상 위 검색창 또는 여기에서 검색어를 입력하세요.
+          </div>
+        </div>
+      </div>
+
+      <!-- 탭 2: Gemini 3.8 Flash 질의응답 (Q&A) -->
+      <div id="chat-tab" class="tab-content">
+        <div class="chat-container">
+          <div id="chat-messages" class="chat-messages">
+            <div class="chat-bubble ai">
+              안녕하세요! <strong>Gemini 3.8 Flash</strong> 기반 영상 어시스턴트입니다. 영상의 내용에 대해 무엇이든 물어보시면 대본을 분석해 타임스탬프와 함께 답변해 드립니다.
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <input 
+              type="text" 
+              id="chat-input" 
+              class="chat-input" 
+              placeholder="영상 내용에 대해 질문하세요... (Enter)"
+            >
+            <button id="chat-send-btn" class="chat-send-btn">전송</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 탭 3: 타임스탬프 전체 대본 -->
+      <div id="transcript-tab" class="tab-content">
+        <div style="font-size: 13px; color: #aaa; margin-bottom: 8px;">
+          각 문장을 클릭하면 해당 시간으로 이동하여 영상을 재생합니다.
+        </div>
+        <div id="transcript-list">
+          <div style="text-align: center; padding: 40px 10px; color: #777;">
+            음성 분석이 완료되면 타임스탬프별 대본이 표시됩니다.
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
