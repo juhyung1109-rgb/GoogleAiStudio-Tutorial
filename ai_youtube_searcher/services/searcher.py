@@ -16,15 +16,9 @@ def get_client() -> genai.Client:
     return genai.Client(api_key=api_key)
 
 def search_content_timestamp(query: str, segments: list, full_text: str = "") -> dict:
-    """
-    영상 내용 중 사용자가 입력한 검색어/주제와 일치하는 가장 적절한 시간(초)을 탐색
-    1차: 로컬 키워드 일치 검색
-    2차: gemini-3.8-flash 모델을 활용한 의미 기반 타임스탬프 탐색
-    """
     if not query or not segments:
         return {"target_seconds": 0, "time_str": "00:00", "reason": "검색 결과가 없습니다.", "matches": []}
 
-    # 1. 로컬 키워드 매칭
     keyword_matches = []
     q_lower = query.lower().strip()
     for seg in segments:
@@ -38,7 +32,6 @@ def search_content_timestamp(query: str, segments: list, full_text: str = "") ->
                 "highlight": True
             })
 
-    # 2. Gemini 3.8 Flash를 통한 지능형 타임스탬프 탐색
     client = get_client()
     target_model = "gemini-3.8-flash"
 
@@ -119,10 +112,6 @@ def search_content_timestamp(query: str, segments: list, full_text: str = "") ->
         }
 
 def answer_question_with_gemini(question: str, transcript: str, video_title: str = "") -> dict:
-    """
-    gemini-3.8-flash 모델을 사용하여 트랜스크립트 기반 질의응답
-    답변 내에 [MM:SS] 형식의 타임스탬프를 포함하도록 유도
-    """
     client = get_client()
     target_model = "gemini-3.8-flash"
 
@@ -140,7 +129,7 @@ def answer_question_with_gemini(question: str, transcript: str, video_title: str
 
 [지침]:
 1. 대본에 나오는 사실에 근거하여 명확하고 이해하기 쉽게 답변하세요.
-2. 답변 중 관련된 내용이나 증거가 나오는 부분에 반드시 [MM:SS] 형식의 타임스탬프를 함께 표기해주세요. (예: "고종은 창덕궁 인정전에서 [03:42]에 다음과 같이 선언했습니다.")
+2. 답변 중 관련된 내용이나 증거가 나오는 부분에 반드시 [MM:SS] 형식의 타임스탬프를 함께 표기해주세요.
 3. 사용자가 타임스탬프를 클릭하여 해당 영상 위치로 바로 이동할 수 있으므로, 타임스탬프 형식을 정확히 지켜주세요.
 """
 
@@ -173,9 +162,6 @@ def answer_question_with_gemini(question: str, transcript: str, video_title: str
     }
 
 def generate_summary_and_chapters(transcript: str, video_title: str = "", segments: list = None) -> dict:
-    """
-    gemini-3.8-flash 모델을 사용하여 3줄 핵심 요약 및 자동 챕터(목차) 생성
-    """
     client = get_client()
     target_model = "gemini-3.8-flash"
 
@@ -206,12 +192,6 @@ def generate_summary_and_chapters(transcript: str, video_title: str = "", segmen
       "time_str": "00:00",
       "title": "도입부 및 주제 소개",
       "description": "챕터에 대한 간략한 1줄 설명"
-    }},
-    {{
-      "start_seconds": 46.0,
-      "time_str": "00:46",
-      "title": "핵심 원인 분석",
-      "description": "세부 내용 설명"
     }}
   ]
 }}
@@ -235,10 +215,76 @@ def generate_summary_and_chapters(transcript: str, video_title: str = "", segmen
         }
     except Exception as e:
         print(f"요약 및 챕터 생성 오류: {e}")
-        # fallback 기본 챕터 생성
         return {
             "summary_points": ["동영상 음성 분석이 완료되었습니다."],
             "chapters": [
                 {"start_seconds": 0.0, "time_str": "00:00", "title": "영상 시작", "description": "전체 재생"}
             ]
         }
+
+def group_transcript_into_contextual_paragraphs(raw_transcript: str, raw_segments: list = None) -> list:
+    """
+    잘게 쪼개진 문장이나 너무 거대한 발화를 '의미와 문맥이 연결되는 자연스러운 단락(Paragraph)' 단위로 적절하게 그룹핑
+    (약 20~40초 또는 3~5개 문장 단위)
+    """
+    if not raw_transcript and not raw_segments:
+        return []
+
+    client = get_client()
+    target_model = "gemini-3.8-flash"
+
+    text_to_process = raw_transcript
+    if not text_to_process and raw_segments:
+        text_to_process = "\n".join([f"[{s.get('time_str', '00:00')}] {s.get('speaker', '화자')}: {s.get('text', '')}" for s in raw_segments])
+
+    prompt = f"""
+당신은 전문 자막/대본 에디터입니다.
+아래의 대본을 읽고, 의미와 문맥이 연결되는 자연스러운 '문맥 단락(Paragraph)' 단위로 적절하게 묶어주세요.
+
+[대본]:
+---
+{text_to_process[:8000]}
+---
+
+[지침]:
+1. 너무 한 문장씩 잘게 쪼개지 마세요.
+2. 하나의 이야기나 주제가 이어지는 3~5개 문장(약 15~35초 분량)을 하나의 단락으로 자연스럽게 결합하세요.
+3. 화자가 바뀌거나 새로운 주제로 전환될 때 단락을 분리하세요.
+4. 각 단락의 시작 시간(start_seconds 및 time_str), 화자, 결합된 전체 문맥 텍스트를 구성하세요.
+
+반드시 아래 JSON 배열 형식으로만 응답하세요:
+```json
+[
+  {{
+    "start_seconds": 0.0,
+    "time_str": "00:00",
+    "speaker": "화자 1",
+    "text": "문맥이 연결된 완성도 높은 단락 텍스트 1..."
+  }},
+  {{
+    "start_seconds": 18.0,
+    "time_str": "00:18",
+    "speaker": "화자 2",
+    "text": "문맥이 연결된 완성도 높은 단락 텍스트 2..."
+  }}
+]
+```
+"""
+
+    try:
+        response = client.models.generate_content(
+            model=target_model,
+            contents=prompt
+        )
+        res_text = response.text.strip()
+        if "```" in res_text:
+            res_text = res_text.split("```")[1]
+            if res_text.startswith("json"):
+                res_text = res_text[4:]
+        paragraphs = json.loads(res_text.strip())
+        if isinstance(paragraphs, list) and len(paragraphs) > 0:
+            return paragraphs
+    except Exception as e:
+        print(f"문맥 단락화 오류 ({e}), 기본 세그먼트 반환...")
+
+    return raw_segments or []
